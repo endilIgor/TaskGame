@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TaskGame</title>
+    <link rel="stylesheet" href="/styles/app.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <div class="brand">TaskGame</div>
+        <nav>
+          <button class="nav-button active" data-view="dashboard">Dashboard</button>
+          <button class="nav-button" data-view="missions">Missoes</button>
+          <button class="nav-button" data-view="goals">Objetivos</button>
+          <button class="nav-button" data-view="badges">Medalhas</button>
+          <button class="nav-button" data-view="rewards">Loja</button>
+          <button class="nav-button" data-view="reports">Relatorio</button>
+          <button class="nav-button" data-view="backup">Backup</button>
+        </nav>
+      </aside>
+      <main id="app" class="content" tabindex="-1"></main>
+    </div>
+    <script type="module" src="/dist/app.js"></script>
+  </body>
+</html>

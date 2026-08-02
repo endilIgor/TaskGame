@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.config import get_settings
 from backend.app.database import init_database
@@ -43,6 +44,7 @@ def create_app(init_db: bool = True) -> FastAPI:
     app.include_router(rewards_router)
     app.include_router(dashboard_router)
     app.include_router(reports_router)
+    app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
     return app
 
