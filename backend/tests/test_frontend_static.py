@@ -64,15 +64,18 @@ def test_react_app_routes_all_taskgame_views():
 
 def test_liquidgl_is_decorative_and_guarded():
     liquid_source = (FRONTEND / "src" / "components" / "LiquidGlassDecor.tsx").read_text()
+    dashboard = (FRONTEND / "src" / "views" / "DashboardView.tsx").read_text()
     styles = (FRONTEND / "styles" / "app.css").read_text()
 
     assert "window.liquidGL" in liquid_source
     assert "try" in liquid_source
     assert "catch" in liquid_source
-    assert "aria-hidden" in liquid_source
-    assert "pointer-events-none" in liquid_source
+    assert "aria-hidden" in dashboard
+    assert ".liquid-glass-surface" in liquid_source
+    assert "MutationObserver" in liquid_source
+    assert "data-liquidgl-bound" in liquid_source
     assert ".pointer-events-none" in styles
-    assert ".liquid-glass-decor" in styles
+    assert ".liquid-glass-surface" in styles
     assert "@media (prefers-reduced-motion: reduce)" in styles
 
 
@@ -105,6 +108,8 @@ def test_liquidgl_component_guards_strict_mode_replay_and_cleans_up_instances():
 
 def test_liquidgl_css_never_targets_interactive_controls():
     css = (FRONTEND / "styles" / "app.css").read_text()
+    backup = (FRONTEND / "src" / "views" / "BackupView.tsx").read_text()
+    rewards = (FRONTEND / "src" / "components" / "RewardCard.tsx").read_text()
 
     forbidden = [
         ".button.liquid",
@@ -115,6 +120,8 @@ def test_liquidgl_css_never_targets_interactive_controls():
     ]
     for selector in forbidden:
         assert selector not in css
+    assert "reward-tile liquid-glass-surface" not in rewards
+    assert 'className="panel backup-panel" data-liquid-ignore' in backup
 
 
 def test_liquidgl_does_not_snapshot_or_cover_functional_shell():
@@ -122,13 +129,29 @@ def test_liquidgl_does_not_snapshot_or_cover_functional_shell():
     css = (FRONTEND / "styles" / "app.css").read_text()
 
     assert "data-liquid-ignore" in shell
-    assert "inset: 0" not in css
-    assert ".liquid-glass-decor" in css
-    assert "z-index: -1" in css
+    assert 'className="app-shell guild-shell" data-liquid-ignore' not in shell
+    assert ".liquid-glass-surface" in css
+    assert ".liquid-glass-surface {\n  position: fixed;" not in css
     assert "@media (max-width: 720px)" in css
     assert ".guild-shell { grid-template-columns: 1fr;" in css
     assert ".sidebar, .content { width: 100%; max-width: 100vw;" in css
-    assert "display: none" in css
+
+
+def test_liquidgl_targets_read_only_information_surfaces():
+    dashboard = (FRONTEND / "src" / "views" / "DashboardView.tsx").read_text()
+    metrics = (FRONTEND / "src" / "components" / "MetricCard.tsx").read_text()
+    mission_card = (FRONTEND / "src" / "components" / "MissionCard.tsx").read_text()
+    badges = (FRONTEND / "src" / "components" / "BadgeTile.tsx").read_text()
+    reports = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
+    rewards = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
+
+    assert 'hero-panel glass-panel' not in dashboard
+    assert 'metric-card-${tone} glass-panel' in metrics
+    assert 'quest-card glass-panel' in mission_card
+    assert 'badge-tile glass-panel' in badges
+    assert reports.count("liquid-glass-surface") >= 3
+    assert 'panel glass-panel' in rewards
+    assert 'aria-hidden="true"' in metrics
 
 
 def test_build_script_has_docker_safe_dist_fallback():
@@ -296,5 +319,5 @@ def test_legacy_manual_frontend_files_are_removed():
 def test_mission_card_is_not_article_inside_article():
     source = (FRONTEND / "src" / "components" / "MissionCard.tsx").read_text()
 
-    assert '<div className="quest-card">' in source
+    assert '<div className="quest-card glass-panel">' in source
     assert '<article className="quest-card">' not in source

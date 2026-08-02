@@ -21,8 +21,8 @@ export function AppShell({ renderView }: AppShellProps) {
   const currentNavigation = navigation.find((item) => item.key === activeView) ?? navigation[0];
 
   return (
-    <div className="app-shell guild-shell" data-liquid-ignore>
-      <aside className="sidebar" aria-label="Navegacao principal">
+    <div className="app-shell guild-shell">
+      <aside className="sidebar" aria-label="Navegacao principal" data-liquid-ignore>
         <div className="brand">TaskGame</div>
         <nav>
           {navigation.map((item) => (

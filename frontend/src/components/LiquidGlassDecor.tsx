@@ -27,6 +27,9 @@ export function LiquidGlassDecor() {
   const pendingCleanupRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
+    const targetSelector = ".liquid-glass-surface:not([data-liquidgl-bound])";
+    const pendingSelector = ".liquid-glass-surface[data-liquidgl-pending]";
+
     if (pendingCleanupRef.current !== undefined) {
       window.clearTimeout(pendingCleanupRef.current);
       pendingCleanupRef.current = undefined;
@@ -47,35 +50,60 @@ export function LiquidGlassDecor() {
       }, 0);
     };
 
-    if (initializedRef.current) {
-      return scheduleCleanup;
-    }
-
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.add("liquidgl-reduced-motion");
       return;
     }
 
-    if (!document.querySelector(".liquid-glass-decor") || typeof window.liquidGL !== "function") {
+    if (typeof window.liquidGL !== "function") {
       document.documentElement.classList.add("liquidgl-unavailable");
       return;
     }
 
-    try {
-      const instance = window.liquidGL({
-        target: ".liquid-glass-decor",
+    const hydrateSurfaces = () => {
+      const surfaces = Array.from(document.querySelectorAll<HTMLElement>(targetSelector));
+      if (surfaces.length === 0) return;
+
+      surfaces.forEach((surface) => {
+        surface.dataset.liquidglPending = "true";
+      });
+
+      const instance = window.liquidGL?.({
+        target: pendingSelector,
         snapshot: "body",
-        refraction: 0.018,
-        frost: 0.18,
+        refraction: 0.004,
+        frost: 0.08,
+        bevelDepth: 0.035,
+        bevelWidth: 0.08,
+        shadow: false,
         tilt: false,
+      });
+      surfaces.forEach((surface) => {
+        delete surface.dataset.liquidglPending;
+        surface.dataset.liquidglBound = "true";
       });
       initializedRef.current = true;
       cleanupRef.current = getInstanceCleanup(instance);
-      return scheduleCleanup;
+    };
+
+    try {
+      hydrateSurfaces();
+      const observer = new MutationObserver(() => {
+        try {
+          hydrateSurfaces();
+        } catch {
+          document.documentElement.classList.add("liquidgl-unavailable");
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+      return () => {
+        observer.disconnect();
+        scheduleCleanup();
+      };
     } catch {
       document.documentElement.classList.add("liquidgl-unavailable");
     }
   }, []);
 
-  return <div className="liquid-glass-decor pointer-events-none" aria-hidden="true" />;
+  return null;
 }
