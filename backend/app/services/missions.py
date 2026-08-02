@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.models import Mission, MissionCompletion, MissionStatus, MissionType, PlayerStats
 from backend.app.schemas import MissionCreate, MissionProgressUpdate, MissionUpdate
+from backend.app.services.badges import evaluate_badges
 from backend.app.services.game_rules import apply_xp_bonus, base_rewards, streak_bonus_percent
 
 
@@ -112,6 +113,7 @@ def advance_mission_progress(
     ):
         mission.status = MissionStatus.COMPLETED
 
+    evaluate_badges(session)
     session.commit()
     session.refresh(mission)
     return mission
@@ -163,6 +165,7 @@ def complete_mission(
     if mission.type == MissionType.LONG_TERM:
         mission.status = MissionStatus.COMPLETED
     try:
+        evaluate_badges(session)
         session.commit()
     except IntegrityError:
         session.rollback()

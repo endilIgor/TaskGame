@@ -90,3 +90,16 @@ class MissionCompletionRead(BaseModel):
     gold_awarded: int
     streak_bonus_percent: int
     note: str | None
+
+
+class BadgeStatusRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    code: str
+    name: str
+    description: str
+    condition_type: str
+    threshold: int
+    earned: bool
+    earned_at: datetime | None

@@ -1,0 +1,75 @@
+from sqlalchemy import Select, func, select
+from sqlalchemy.orm import Session
+
+from backend.app.models import (
+    Badge,
+    EarnedBadge,
+    Mission,
+    MissionCompletion,
+    MissionStatus,
+    MissionType,
+    PlayerStats,
+    RewardPurchase,
+)
+from backend.app.schemas import BadgeStatusRead
+
+
+def _has_rows(session: Session, statement: Select[tuple[int]]) -> bool:
+    return session.scalar(statement.limit(1)) is not None
+
+
+def evaluate_badges(session: Session) -> list[EarnedBadge]:
+    player = session.scalar(select(PlayerStats).limit(1))
+    current_streak = player.current_streak if player else 0
+    total_xp = player.total_xp if player else 0
+    conditions = {
+        "streak_7": current_streak >= 7,
+        "streak_30": current_streak >= 30,
+        "missions_100": session.scalar(select(func.count()).select_from(MissionCompletion)) >= 100,
+        "first_goal": _has_rows(
+            session,
+            select(Mission.id).where(
+                Mission.type == MissionType.LONG_TERM,
+                Mission.status == MissionStatus.COMPLETED,
+            ),
+        ),
+        "first_reward": _has_rows(session, select(RewardPurchase.id)),
+        "xp_1000": total_xp >= 1000,
+        "xp_10000": total_xp >= 10000,
+    }
+    badges = list(session.scalars(select(Badge).where(Badge.code.in_(conditions))).all())
+    earned_badge_ids = set(
+        session.scalars(
+            select(EarnedBadge.badge_id).where(
+                EarnedBadge.badge_id.in_(badge.id for badge in badges)
+            )
+        ).all()
+    )
+    unlocked = [
+        EarnedBadge(badge_id=badge.id)
+        for badge in badges
+        if conditions[badge.code] and badge.id not in earned_badge_ids
+    ]
+    session.add_all(unlocked)
+    return unlocked
+
+
+def list_badges_with_status(session: Session) -> list[BadgeStatusRead]:
+    rows = session.execute(
+        select(Badge, EarnedBadge)
+        .outerjoin(EarnedBadge, EarnedBadge.badge_id == Badge.id)
+        .order_by(Badge.id)
+    )
+    return [
+        BadgeStatusRead(
+            id=badge.id,
+            code=badge.code,
+            name=badge.name,
+            description=badge.description,
+            condition_type=badge.condition_type,
+            threshold=badge.threshold,
+            earned=earned_badge is not None,
+            earned_at=earned_badge.earned_at if earned_badge else None,
+        )
+        for badge, earned_badge in rows
+    ]

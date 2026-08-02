@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from backend.app.config import get_settings
 from backend.app.database import get_session, init_database
 from backend.app.models import PlayerStats
+from backend.app.routers.badges import router as badges_router
 from backend.app.routers.missions import router as missions_router
 
 
@@ -46,6 +47,7 @@ def create_app(init_db: bool = True) -> FastAPI:
         }
 
     app.include_router(missions_router)
+    app.include_router(badges_router)
 
     return app
 
