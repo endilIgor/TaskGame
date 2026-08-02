@@ -82,3 +82,22 @@ def test_build_script_has_docker_safe_dist_fallback():
     assert "npm --prefix frontend run build" in source
     assert "frontend/dist" in source
     assert "React frontend build is missing" in source
+
+
+def test_react_api_client_wraps_existing_backend_endpoints():
+    source = (FRONTEND / "src" / "api" / "client.ts").read_text()
+
+    assert "export async function apiGet" in source
+    assert "export async function apiPost" in source
+    assert "export async function apiPatch" in source
+    assert 'fetch(`/api${path}`' in source
+    assert "throw new Error" in source
+
+
+def test_react_app_uses_stateful_shell_navigation():
+    source = (FRONTEND / "src" / "components" / "AppShell.tsx").read_text()
+
+    for view in ("dashboard", "missions", "goals", "badges", "rewards", "reports", "backup"):
+        assert view in source
+    assert "useState<ViewKey>" in source
+    assert "setActiveView" in source
