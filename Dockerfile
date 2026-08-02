@@ -2,14 +2,16 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends default-mysql-client node-typescript \
-    && rm -rf /var/lib/apt/lists/*
+COPY vendor/wheels /wheels
 
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[test]"
+COPY backend ./backend
 
-COPY . .
+RUN pip install --no-index --find-links=/wheels ".[test]"
+
+COPY frontend ./frontend
+COPY scripts ./scripts
+COPY tsconfig.json ./
 
 RUN chmod +x scripts/*.sh
 RUN scripts/build_frontend.sh

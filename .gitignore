@@ -5,6 +5,7 @@
 __pycache__/
 .pytest_cache/
 *.pyc
+*.db
 backups/
 frontend/dist/*.js
 frontend/dist/*.js.map

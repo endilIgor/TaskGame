@@ -23,4 +23,29 @@ def test_database_scripts_use_injected_environment_without_password_arguments():
         source = (ROOT / "scripts" / name).read_text()
         assert ". ./.env" not in source
         assert '--password="$MYSQL_PASSWORD"' not in source
-        assert "--defaults-extra-file" in source
+        assert "python -m backend.app.services.mysql_dump" in source
+
+
+def test_dockerfile_does_not_require_apt_packages_for_runtime():
+    source = (ROOT / "Dockerfile").read_text()
+
+    assert "apt-get" not in source
+    assert "default-mysql-client" not in source
+    assert "node-typescript" not in source
+
+
+def test_dockerfile_installs_python_dependencies_from_local_wheelhouse():
+    source = (ROOT / "Dockerfile").read_text()
+
+    assert "COPY vendor/wheels /wheels" in source
+    assert "--no-index" in source
+    assert "--find-links=/wheels" in source
+
+
+def test_dockerfile_uses_explicit_project_copies():
+    source = (ROOT / "Dockerfile").read_text()
+
+    assert "COPY . ." not in source
+    assert "COPY backend ./backend" in source
+    assert "COPY frontend ./frontend" in source
+    assert "COPY scripts ./scripts" in source

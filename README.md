@@ -20,13 +20,15 @@ docker compose up --build
 
 Com os containers em execucao, abra `http://localhost:8000`. O MySQL fica apenas na rede interna do Compose; a aplicacao e publicada somente em `127.0.0.1:8000` por padrao.
 
+O build Docker instala dependencias Python a partir de `vendor/wheels`, entao a etapa da imagem nao precisa de `apt-get`, npm ou acesso ao PyPI. Quando uma dependencia Python mudar no `pyproject.toml`, atualize esse wheelhouse antes de reconstruir a imagem.
+
 `APP_PORT` altera a porta interna e publicada. `APP_HOST` controla o endereco em que o Uvicorn escuta dentro do container. Para acesso intencional pela rede local, defina `APP_BIND_ADDRESS=0.0.0.0` e ajuste `BACKEND_CORS_ORIGINS` para as origens de navegador necessarias. A API nao possui autenticacao, portanto nao use essa opcao em redes nao confiaveis.
 
 Para confirmar que os dados persistem, crie uma missao pela interface, pare os containers com `Ctrl+C`, execute `docker compose up` novamente e confirme que a missao continua visivel.
 
 ### Solucao de problemas
 
-O build da imagem instala pacotes Debian a partir de `deb.debian.org`. Em ambientes onde esse host nao resolve por DNS, `docker compose up --build` falha antes de iniciar os containers. Corrija a conectividade ou a resolucao DNS do ambiente e execute o comando novamente.
+Se o build falhar dizendo que nao encontrou um pacote Python, confirme se o wheel correspondente existe em `vendor/wheels`. Recrie o wheelhouse em uma maquina com acesso a internet usando `pip download -d vendor/wheels ...` para as dependencias do `pyproject.toml`.
 
 O script usa `TSC_BIN` quando definido, depois `tsc` no PATH. Sem um compilador instalado, ele copia os modulos JavaScript pre-compilados e versionados em `frontend/prebuilt`, portanto funciona em um clone normal sem npm ou `package.json`.
 
@@ -85,6 +87,5 @@ docker compose exec app scripts/restore_mysql.sh /app/backups/mysql/taskgame-YYY
 
 ## Proximos passos
 
-- Configurar uma resolucao DNS funcional para permitir builds Docker em ambientes restritos.
 - Criar backups regulares e testar a restauracao em uma instancia local separada.
 - Evoluir recursos planejados fora do MVP, como PWA, calendario visual e estatisticas avancadas.
