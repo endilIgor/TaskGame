@@ -30,7 +30,7 @@ Para confirmar que os dados persistem, crie uma missao pela interface, pare os c
 
 Se o build falhar dizendo que nao encontrou um pacote Python, confirme se o wheel correspondente existe em `vendor/wheels`. Recrie o wheelhouse em uma maquina com acesso a internet usando `pip download -d vendor/wheels ...` para as dependencias do `pyproject.toml`.
 
-O script usa o Vite local quando disponivel. Em um clone sem dependencias instaladas, ele executa `npm ci` quando houver npm e o lockfile; no Docker, usa os arquivos de producao versionados em `frontend/dist`, sem npm ou Node na imagem.
+O script usa o Vite local quando disponivel. Em um clone sem dependencias instaladas, ele executa `npm ci` quando houver npm e o lockfile; no Docker, usa os arquivos de producao versionados em `frontend/dist`, que o FastAPI serve em producao sem npm ou Node na imagem. O `frontend/index.html` de origem permanece disponivel para `npm --prefix frontend run dev`.
 
 ## Como testar
 

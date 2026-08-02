@@ -44,7 +44,7 @@ def create_app(init_db: bool = True) -> FastAPI:
     app.include_router(rewards_router)
     app.include_router(dashboard_router)
     app.include_router(reports_router)
-    app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
 
     return app
 

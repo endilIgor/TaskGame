@@ -8,6 +8,11 @@ declare global {
 
 export function LiquidGlassDecor() {
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("liquidgl-reduced-motion");
+      return;
+    }
+
     try {
       window.liquidGL?.({
         target: ".liquid-glass-decor",
