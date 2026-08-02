@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.config import get_settings
 from backend.app.database import init_database
 from backend.app.routers.badges import router as badges_router
+from backend.app.routers.backup import router as backup_router
 from backend.app.routers.dashboard import router as dashboard_router
 from backend.app.routers.missions import router as missions_router
 from backend.app.routers.reports import router as reports_router
@@ -37,6 +38,7 @@ def create_app(init_db: bool = True) -> FastAPI:
         return {"status": "ok", "app": settings.app_name}
 
     app.include_router(missions_router)
+    app.include_router(backup_router)
     app.include_router(badges_router)
     app.include_router(rewards_router)
     app.include_router(dashboard_router)
