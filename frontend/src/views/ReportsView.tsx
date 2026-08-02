@@ -17,11 +17,6 @@ export function ReportsView() {
     ...report.data.daily_activity.map((day) => day.completions),
     1,
   );
-  const rewardMaximum = Math.max(
-    ...report.data.daily_activity.map((day) => Math.max(day.xp_gained, day.gold_gained)),
-    1,
-  );
-  const rewardWidth = (value: number) => `${Math.max(value > 0 ? 28 : 0, value / rewardMaximum * 100)}%`;
   const periodLabel = period === "weekly" ? "Semana" : "Mês";
 
   return (
@@ -47,26 +42,28 @@ export function ReportsView() {
           {report.data.daily_activity.map((day) => {
             const total = day.completions;
             const hasRewards = day.xp_gained > 0 || day.gold_gained > 0;
+            const rewardTotal = Math.max(day.xp_gained + day.gold_gained, 1);
             return (
               <div className="chart-column" key={day.date}>
                 <span className="chart-value">{total}</span>
                 <div
-                  className={`chart-bar${total ? " filled" : ""}`}
+                  className="chart-bar reward-comparison"
                   style={{ height: `${Math.max(8, total / maximum * 100)}%` }}
-                  aria-label={`${day.label}: ${total} conclusões`}
-                />
-                {hasRewards ? (
-                  <div className="chart-reward-stack" aria-label={`${day.label}: ${day.xp_gained} XP, ${day.gold_gained} ouro`}>
-                    <div className="chart-reward-bar xp" style={{ width: rewardWidth(day.xp_gained) }}>
+                  aria-label={`${day.label}: ${total} conclusões, ${day.xp_gained} XP, ${day.gold_gained} ouro`}
+                >
+                  {hasRewards ? (
+                    <>
+                    <div className="chart-reward-segment xp" style={{ flexGrow: Math.max(day.xp_gained, 0), flexBasis: `${day.xp_gained / rewardTotal * 100}%` }}>
                       <span>XP</span>
                       <strong>{day.xp_gained}</strong>
                     </div>
-                    <div className="chart-reward-bar gold" style={{ width: rewardWidth(day.gold_gained) }}>
+                    <div className="chart-reward-segment gold" style={{ flexGrow: Math.max(day.gold_gained, 0), flexBasis: `${day.gold_gained / rewardTotal * 100}%` }}>
                       <span>Ouro</span>
                       <strong>{day.gold_gained}</strong>
                     </div>
-                  </div>
-                ) : null}
+                    </>
+                  ) : null}
+                </div>
                 <span className="chart-label">{day.label}</span>
               </div>
             );

@@ -300,18 +300,19 @@ def test_reports_view_supports_weekly_and_monthly_breakdowns_with_xp_and_gold():
     assert "Conclusões do período" in source
 
 
-def test_reports_reward_chart_uses_blue_xp_and_gold_bars_with_inner_labels():
+def test_reports_reward_chart_uses_blue_xp_and_gold_inside_the_main_bar():
     source = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
     css = (FRONTEND / "styles" / "app.css").read_text()
 
-    assert "rewardMaximum" in source
-    assert 'className="chart-reward-bar xp"' in source
-    assert 'className="chart-reward-bar gold"' in source
+    assert "chart-reward-stack" not in source
+    assert 'className="chart-bar reward-comparison"' in source
+    assert 'className="chart-reward-segment xp"' in source
+    assert 'className="chart-reward-segment gold"' in source
     assert ">XP<" in source
     assert ">Ouro<" in source
-    assert ".chart-reward-bar.xp" in css
+    assert ".chart-reward-segment.xp" in css
     assert "var(--color-arcane)" in css
-    assert ".chart-reward-bar.gold" in css
+    assert ".chart-reward-segment.gold" in css
     assert "var(--color-gold)" in css
 
 
