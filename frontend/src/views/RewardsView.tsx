@@ -73,8 +73,7 @@ export function RewardsView() {
       ) : <EmptyState>Nenhuma recompensa a venda.</EmptyState> : null}
       {purchases.status === "error" ? <ErrorPanel>{purchases.error}</ErrorPanel> : null}
       {purchases.status === "ready" ? (
-        <section className="panel glass-panel">
-          <span className="liquid-glass-surface" aria-hidden="true" />
+        <section className="panel">
           <h2 className="panel-heading">Historico de compras</h2>
           <div className="history-list">
             {purchases.data.length ? purchases.data.map((purchase) => (

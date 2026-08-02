@@ -51,8 +51,7 @@ export function DashboardView() {
           </div>
         </section>
 
-        <section className="panel guild-panel weekly-panel glass-panel" aria-labelledby="weekly-heading">
-          <span className="liquid-glass-surface" aria-hidden="true" />
+        <section className="panel guild-panel weekly-panel" aria-labelledby="weekly-heading">
           <div className="section-heading">
             <div>
               <span className="section-kicker">Cronica semanal</span>
@@ -84,8 +83,7 @@ export function DashboardView() {
           ) : <EmptyState>Nenhuma missao no horizonte.</EmptyState>}
         </section>
 
-        <aside className="panel guild-panel badge-highlight glass-panel" aria-labelledby="badge-heading">
-          <span className="liquid-glass-surface" aria-hidden="true" />
+        <aside className="panel guild-panel badge-highlight" aria-labelledby="badge-heading">
           <span className="section-kicker">Ultima conquista</span>
           <h2 id="badge-heading">Medalha recente</h2>
           {recentBadge ? (

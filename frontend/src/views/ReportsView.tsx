@@ -25,8 +25,7 @@ export function ReportsView() {
         <MetricCard label="XP ganho" value={report.data.xp_gained} />
         <MetricCard label="Ouro ganho" value={report.data.gold_gained} tone="gold" />
       </div>
-      <section className="panel glass-panel">
-        <span className="liquid-glass-surface" aria-hidden="true" />
+      <section className="panel">
         <h2 className="panel-heading">Conclusoes da semana</h2>
         <div className="bar-chart">
           {weekdays.map((day, index) => {
@@ -46,8 +45,7 @@ export function ReportsView() {
         </div>
       </section>
       <div className="analysis-grid">
-        <section className="panel glass-panel">
-          <span className="liquid-glass-surface" aria-hidden="true" />
+        <section className="panel">
           <h2 className="panel-heading">Categorias em destaque</h2>
           {report.data.top_categories.length ? (
             <div className="history-list">
@@ -60,8 +58,7 @@ export function ReportsView() {
             </div>
           ) : <EmptyState>Sem conclusoes por categoria.</EmptyState>}
         </section>
-        <section className="panel glass-panel">
-          <span className="liquid-glass-surface" aria-hidden="true" />
+        <section className="panel">
           <h2 className="panel-heading">Objetivos concluidos</h2>
           {report.data.goals_completed.length ? (
             <div className="history-list">

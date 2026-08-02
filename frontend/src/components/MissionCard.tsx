@@ -22,8 +22,7 @@ export function MissionCard({ mission }: MissionCardProps) {
   const hasProgress = mission.progress_target !== null;
 
   return (
-    <div className="quest-card glass-panel">
-      <span className="liquid-glass-surface" aria-hidden="true" />
+    <div className="quest-card">
       <div className="quest-card-header">
         <div>
           <span className={`quest-difficulty difficulty-${mission.difficulty}`}>{difficultyLabels[mission.difficulty]}</span>

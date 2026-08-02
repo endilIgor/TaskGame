@@ -9,8 +9,7 @@ interface MetricCardProps {
 
 export function MetricCard({ label, value, detail, tone = "arcane" }: MetricCardProps) {
   return (
-    <article className={`metric-card metric-card-${tone} glass-panel`}>
-      <span className="liquid-glass-surface" aria-hidden="true" />
+    <article className={`metric-card metric-card-${tone}`}>
       <span className="metric-label">{label}</span>
       <strong className="metric-value">{value}</strong>
       {detail ? <span className="metric-detail">{detail}</span> : null}
