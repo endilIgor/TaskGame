@@ -103,3 +103,34 @@ class BadgeStatusRead(BaseModel):
     threshold: int
     earned: bool
     earned_at: datetime | None
+
+
+class RewardCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=500)
+    cost: int = Field(ge=1)
+
+
+class RewardUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=500)
+    cost: int | None = Field(default=None, ge=1)
+
+
+class RewardRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    description: str | None
+    cost: int
+    status: str
+
+
+class RewardPurchaseRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    reward_id: int
+    cost_paid: int
+    purchased_at: datetime
