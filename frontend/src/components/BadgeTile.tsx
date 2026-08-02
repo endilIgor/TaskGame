@@ -1,9 +1,9 @@
 import type { BadgeStatus } from "../types";
 
 const conditionLabels: Record<string, string> = {
-  streak: "Sequencia",
-  missions_completed: "Missoes concluidas",
-  goals_completed: "Objetivos concluidos",
+  streak: "Sequência",
+  missions_completed: "Missões concluídas",
+  goals_completed: "Objetivos concluídos",
   perfect_week: "Rotina perfeita",
   reward_purchases: "Compras na loja",
   xp_total: "XP acumulado",

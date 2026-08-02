@@ -31,7 +31,7 @@ export function RewardsView() {
       setCost("");
       setRefreshKey((key) => key + 1);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Nao foi possivel criar a recompensa.");
+      setError(cause instanceof Error ? cause.message : "Não foi possível criar a recompensa.");
     } finally {
       setBusy(null);
     }
@@ -45,7 +45,7 @@ export function RewardsView() {
       await apiPost<RewardPurchase>(`/rewards/${reward.id}/purchase`);
       setRefreshKey((key) => key + 1);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Compra indisponivel.");
+      setError(cause instanceof Error ? cause.message : "Compra indisponível.");
     } finally {
       setBusy(null);
     }
@@ -58,7 +58,7 @@ export function RewardsView() {
         <h2 className="panel-heading">Nova recompensa</h2>
         <div className="form-grid">
           <FormField label="Nome"><TextInput required maxLength={120} value={name} onChange={(event) => setName(event.target.value)} /></FormField>
-          <FormField label="Descricao"><TextArea maxLength={500} value={description} onChange={(event) => setDescription(event.target.value)} /></FormField>
+          <FormField label="Descrição"><TextArea maxLength={500} value={description} onChange={(event) => setDescription(event.target.value)} /></FormField>
           <FormField label="Custo em ouro"><TextInput required type="number" min="1" value={cost} onChange={(event) => setCost(event.target.value)} /></FormField>
         </div>
         <button className="button primary" disabled={busy === "create"}>Adicionar recompensa</button>
@@ -70,11 +70,11 @@ export function RewardsView() {
         <div className="reward-grid">
           {rewards.data.map((reward) => <RewardCard reward={reward} key={reward.id} onPurchase={purchase} busy={busy === reward.id} />)}
         </div>
-      ) : <EmptyState>Nenhuma recompensa a venda.</EmptyState> : null}
+      ) : <EmptyState>Nenhuma recompensa à venda.</EmptyState> : null}
       {purchases.status === "error" ? <ErrorPanel>{purchases.error}</ErrorPanel> : null}
       {purchases.status === "ready" ? (
         <section className="panel">
-          <h2 className="panel-heading">Historico de compras</h2>
+          <h2 className="panel-heading">Histórico de compras</h2>
           <div className="history-list">
             {purchases.data.length ? purchases.data.map((purchase) => (
               <div className="history-row" key={purchase.id}>

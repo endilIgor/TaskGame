@@ -57,11 +57,11 @@ def test_weekly_report_counts_completed_missions(client: TestClient):
     assert response.json()["xp_gained"] == 25
     assert response.json()["best_day"] in {
         "Segunda-feira",
-        "Terca-feira",
+        "Terça-feira",
         "Quarta-feira",
         "Quinta-feira",
         "Sexta-feira",
-        "Sabado",
+        "Sábado",
         "Domingo",
     }
     assert response.json()["best_day"] not in {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}

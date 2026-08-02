@@ -7,28 +7,28 @@ from backend.app.models import Badge, PlayerStats
 DEFAULT_BADGES = (
     {
         "code": "streak_7",
-        "name": "Sequencia de 7 dias",
-        "description": "Conclua missoes diarias por 7 dias seguidos.",
+        "name": "Sequência de 7 dias",
+        "description": "Conclua missões diárias por 7 dias seguidos.",
         "condition_type": "streak",
         "threshold": 7,
     },
     {
         "code": "streak_30",
-        "name": "Sequencia de 30 dias",
-        "description": "Conclua missoes diarias por 30 dias seguidos.",
+        "name": "Sequência de 30 dias",
+        "description": "Conclua missões diárias por 30 dias seguidos.",
         "condition_type": "streak",
         "threshold": 30,
     },
     {
         "code": "missions_100",
-        "name": "100 missoes concluidas",
-        "description": "Conclua 100 missoes.",
+        "name": "100 missões concluídas",
+        "description": "Conclua 100 missões.",
         "condition_type": "missions_completed",
         "threshold": 100,
     },
     {
         "code": "first_goal",
-        "name": "Primeiro objetivo concluido",
+        "name": "Primeiro objetivo concluído",
         "description": "Conclua seu primeiro objetivo longo.",
         "condition_type": "goals_completed",
         "threshold": 1,
@@ -36,7 +36,7 @@ DEFAULT_BADGES = (
     {
         "code": "perfect_week",
         "name": "Rotina perfeita da semana",
-        "description": "Conclua ao menos 7 missoes em uma semana sem falhas.",
+        "description": "Conclua ao menos 7 missões em uma semana sem falhas.",
         "condition_type": "perfect_week",
         "threshold": 7,
     },
@@ -68,10 +68,17 @@ def seed_defaults(session: Session) -> None:
     if session.scalar(select(PlayerStats).limit(1)) is None:
         session.add(PlayerStats())
 
-    existing_codes = set(session.scalars(select(Badge.code)).all())
-    session.add_all(
-        Badge(**badge)
-        for badge in DEFAULT_BADGES
-        if badge["code"] not in existing_codes
-    )
+    existing_badges = {
+        badge.code: badge
+        for badge in session.scalars(select(Badge)).all()
+    }
+    for badge_data in DEFAULT_BADGES:
+        badge = existing_badges.get(badge_data["code"])
+        if badge is None:
+            session.add(Badge(**badge_data))
+            continue
+        badge.name = badge_data["name"]
+        badge.description = badge_data["description"]
+        badge.condition_type = badge_data["condition_type"]
+        badge.threshold = badge_data["threshold"]
     session.commit()

@@ -3,12 +3,12 @@ import type { ReactNode } from "react";
 import type { ViewKey } from "../types";
 
 const navigation = [
-  { key: "dashboard", label: "Salao", eyebrow: "Personagem" },
-  { key: "missions", label: "Missoes", eyebrow: "Contratos" },
+  { key: "dashboard", label: "Salão", eyebrow: "Personagem" },
+  { key: "missions", label: "Missões", eyebrow: "Contratos" },
   { key: "goals", label: "Campanhas", eyebrow: "Objetivos" },
   { key: "badges", label: "Medalhas", eyebrow: "Conquistas" },
   { key: "rewards", label: "Loja", eyebrow: "Ouro" },
-  { key: "reports", label: "Cronica", eyebrow: "Semana" },
+  { key: "reports", label: "Crônica", eyebrow: "Relatórios" },
   { key: "backup", label: "Arquivo", eyebrow: "Dados" },
 ] as const;
 
@@ -22,7 +22,7 @@ export function AppShell({ renderView }: AppShellProps) {
 
   return (
     <div className="app-shell guild-shell" data-liquid-ignore>
-      <aside className="sidebar" aria-label="Navegacao principal">
+      <aside className="sidebar" aria-label="Navegação principal">
         <div className="brand">TaskGame</div>
         <nav>
           {navigation.map((item) => (

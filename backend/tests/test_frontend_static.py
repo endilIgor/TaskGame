@@ -158,6 +158,13 @@ def test_react_app_uses_stateful_shell_navigation():
     assert "setActiveView" in source
 
 
+def test_cronica_navigation_does_not_keep_a_fixed_week_label():
+    source = (FRONTEND / "src" / "components" / "AppShell.tsx").read_text()
+
+    assert '{ key: "reports", label: "Crônica", eyebrow: "Relatórios" }' in source
+    assert '{ key: "reports", label: "Cronica", eyebrow: "Semana" }' not in source
+
+
 def test_rpg_theme_css_contains_centered_premium_tokens():
     css = (FRONTEND / "styles" / "app.css").read_text()
 
@@ -175,8 +182,8 @@ def test_dashboard_view_uses_live_dashboard_endpoint():
     source = (FRONTEND / "src" / "views" / "DashboardView.tsx").read_text()
 
     assert 'apiGet<DashboardData>("/dashboard")' in source
-    assert "XP para o proximo nivel" in source
-    assert "Missoes de hoje" in source
+    assert "XP para o próximo nível" in source
+    assert "Missões de hoje" in source
     assert "Ouro" in source
 
 
@@ -275,8 +282,8 @@ def test_badge_tiles_show_condition_and_unlock_date():
 def test_reports_use_non_punitive_failure_copy():
     source = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
 
-    assert "Pontos de atencao" in source
-    assert "Missoes falhas" not in source
+    assert "Pontos de atenção" in source
+    assert "Missões falhas" not in source
     assert 'tone="danger"' not in source
 
 
@@ -289,7 +296,23 @@ def test_reports_view_supports_weekly_and_monthly_breakdowns_with_xp_and_gold():
     assert "daily_activity" in source
     assert "xp_gained" in source
     assert "gold_gained" in source
-    assert "Conclusoes do periodo" in source
+    assert 'period === "weekly" ? "Semana" : "Mês"' in source
+    assert "Conclusões do período" in source
+
+
+def test_reports_reward_chart_uses_blue_xp_and_gold_bars_with_inner_labels():
+    source = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert "rewardMaximum" in source
+    assert 'className="chart-reward-bar xp"' in source
+    assert 'className="chart-reward-bar gold"' in source
+    assert ">XP<" in source
+    assert ">Ouro<" in source
+    assert ".chart-reward-bar.xp" in css
+    assert "var(--color-arcane)" in css
+    assert ".chart-reward-bar.gold" in css
+    assert "var(--color-gold)" in css
 
 
 def test_legacy_manual_frontend_files_are_removed():

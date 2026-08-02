@@ -34,6 +34,31 @@ def test_seed_defaults_creates_single_player_and_badges():
     }
 
 
+def test_seed_defaults_refreshes_existing_default_badge_copy():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as session:
+        session.add(
+            Badge(
+                code="missions_100",
+                name="100 missoes concluidas",
+                description="Conclua 100 missoes.",
+                condition_type="missions_completed",
+                threshold=100,
+            )
+        )
+        session.commit()
+
+        seed_defaults(session)
+
+        badge = session.scalar(select(Badge).where(Badge.code == "missions_100"))
+
+    assert badge is not None
+    assert badge.name == "100 missões concluídas"
+    assert badge.description == "Conclua 100 missões."
+
+
 def test_app_startup_initializes_default_sqlite_database():
     with TestClient(create_app()):
         with SessionLocal() as session:

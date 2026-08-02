@@ -6,14 +6,14 @@ interface MissionCardProps {
 }
 
 const difficultyLabels: Record<Mission["difficulty"], string> = {
-  easy: "Facil",
-  medium: "Media",
-  hard: "Dificil",
-  epic: "Epica",
+  easy: "Fácil",
+  medium: "Média",
+  hard: "Difícil",
+  epic: "Épica",
 };
 
 const missionTypeLabels: Record<Mission["type"], string> = {
-  daily: "Diaria",
+  daily: "Diária",
   weekly: "Semanal",
   long_term: "Campanha",
 };
@@ -35,7 +35,7 @@ export function MissionCard({ mission }: MissionCardProps) {
         <span>{mission.category || "Sem categoria"}</span>
         {mission.target_date ? <span>Prazo: {mission.target_date}</span> : null}
       </div>
-      {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target} label="Progresso da missao" /> : null}
+      {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target} label="Progresso da missão" /> : null}
     </div>
   );
 }

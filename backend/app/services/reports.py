@@ -44,11 +44,11 @@ def _month_end(value: date) -> date:
 
 WEEKDAY_LABELS = [
     "Segunda-feira",
-    "Terca-feira",
+    "Terça-feira",
     "Quarta-feira",
     "Quinta-feira",
     "Sexta-feira",
-    "Sabado",
+    "Sábado",
     "Domingo",
 ]
 

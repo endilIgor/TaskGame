@@ -54,7 +54,7 @@ function payloadFromForm(form: MissionFormState): MissionCreatePayload {
 }
 
 function validateMissionForm(form: MissionFormState): string | null {
-  if (!form.title.trim()) return "Informe um titulo para a missao.";
+  if (!form.title.trim()) return "Informe um título para a missão.";
   const target = Number(form.progress_target);
   if (form.type === "long_term" && (!Number.isInteger(target) || target < 1)) {
     return "Campanhas precisam de uma meta de progresso positiva.";
@@ -96,7 +96,7 @@ export function MissionsView() {
       setForm(initialForm);
       refresh();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Nao foi possivel criar a missao.");
+      setError(cause instanceof Error ? cause.message : "Não foi possível criar a missão.");
     } finally {
       setBusyId(null);
     }
@@ -114,7 +114,7 @@ export function MissionsView() {
       if (action === "progress") await apiPost<Mission, MissionProgressPayload>(`/missions/${mission.id}/progress`, { amount: 1 });
       refresh();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Nao foi possivel atualizar a missao.");
+      setError(cause instanceof Error ? cause.message : "Não foi possível atualizar a missão.");
     } finally {
       setBusyId(null);
     }
@@ -138,7 +138,7 @@ export function MissionsView() {
       });
       refresh();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Nao foi possivel editar a missao.");
+      setError(cause instanceof Error ? cause.message : "Não foi possível editar a missão.");
     } finally {
       setBusyId(null);
     }
@@ -163,22 +163,22 @@ export function MissionsView() {
         <div className="mission-actions">
           {editForm ? (
             <form className="compact-form" onSubmit={(event) => { event.preventDefault(); void saveMission(mission, editForm); }}>
-              <TextInput required maxLength={120} value={editForm.title} aria-label={`Titulo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { title: event.target.value })} />
+              <TextInput required maxLength={120} value={editForm.title} aria-label={`Título de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { title: event.target.value })} />
               <SelectInput value={editForm.type} aria-label={`Tipo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { type: event.target.value as MissionType, progress_target: event.target.value === "long_term" ? editForm.progress_target : "" })}>
-                <option value="daily">Diaria</option>
+                <option value="daily">Diária</option>
                 <option value="weekly">Semanal</option>
                 <option value="long_term">Campanha</option>
               </SelectInput>
               <SelectInput value={editForm.difficulty} aria-label={`Dificuldade de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { difficulty: event.target.value as Difficulty })}>
-                <option value="easy">Facil</option>
-                <option value="medium">Media</option>
-                <option value="hard">Dificil</option>
-                <option value="epic">Epica</option>
+                <option value="easy">Fácil</option>
+                <option value="medium">Média</option>
+                <option value="hard">Difícil</option>
+                <option value="epic">Épica</option>
               </SelectInput>
               <TextInput maxLength={80} value={editForm.category} placeholder="Categoria" aria-label={`Categoria de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { category: event.target.value })} />
               <TextInput type="date" value={editForm.target_date} aria-label={`Data alvo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { target_date: event.target.value })} />
               <TextInput type="number" min="1" required={editForm.type === "long_term"} value={editForm.progress_target} placeholder="Meta de progresso" aria-label={`Meta de progresso de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { progress_target: event.target.value })} />
-              <TextArea value={editForm.description} placeholder="Descricao" aria-label={`Descricao de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { description: event.target.value })} />
+              <TextArea value={editForm.description} placeholder="Descrição" aria-label={`Descrição de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { description: event.target.value })} />
               <div className="row-actions">
                 <button className="button primary" disabled={busyId === mission.id}>Salvar</button>
                 <button className="button" type="button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[mission.id]; return next; })}>Cancelar</button>
@@ -189,7 +189,7 @@ export function MissionsView() {
               <div className="row-actions">
                 {canComplete ? <button className="button primary" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "complete")}>Concluir</button> : null}
                 {canProgress ? <button className="button primary" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "progress")}>+1 progresso</button> : null}
-                {isActive ? <button className="button danger" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "archive")}>Arquivar</button> : <span className="badge-status">{mission.status === "completed" ? "Concluida" : "Arquivada"}</span>}
+                {isActive ? <button className="button danger" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "archive")}>Arquivar</button> : <span className="badge-status">{mission.status === "completed" ? "Concluída" : "Arquivada"}</span>}
                 {isArchived ? <button className="button primary" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "restore")}>Restaurar</button> : null}
                 <button className="button" type="button" disabled={busyId === mission.id} onClick={() => setEditing((current) => ({ ...current, [mission.id]: formFromMission(mission) }))}>Editar</button>
                 <button className="button danger" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "delete")}>Apagar</button>
@@ -204,31 +204,31 @@ export function MissionsView() {
 
   return (
     <section className="view-page" aria-labelledby="missions-heading">
-      <header><span className="section-kicker">Contratos</span><h1 className="page-heading" id="missions-heading">Missoes</h1></header>
+      <header><span className="section-kicker">Contratos</span><h1 className="page-heading" id="missions-heading">Missões</h1></header>
       <form className="panel mission-form" onSubmit={createMission}>
         <h2 className="panel-heading">Novo contrato</h2>
         <div className="form-grid">
-          <FormField label="Titulo"><TextInput required maxLength={120} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></FormField>
-          <FormField label="Descricao"><TextArea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></FormField>
-          <FormField label="Tipo"><SelectInput value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as MissionType, progress_target: event.target.value === "long_term" ? form.progress_target : "" })}><option value="daily">Diaria</option><option value="weekly">Semanal</option><option value="long_term">Campanha</option></SelectInput></FormField>
-          <FormField label="Dificuldade"><SelectInput value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value as Difficulty })}><option value="easy">Facil</option><option value="medium">Media</option><option value="hard">Dificil</option><option value="epic">Epica</option></SelectInput></FormField>
+          <FormField label="Título"><TextInput required maxLength={120} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></FormField>
+          <FormField label="Descrição"><TextArea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></FormField>
+          <FormField label="Tipo"><SelectInput value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as MissionType, progress_target: event.target.value === "long_term" ? form.progress_target : "" })}><option value="daily">Diária</option><option value="weekly">Semanal</option><option value="long_term">Campanha</option></SelectInput></FormField>
+          <FormField label="Dificuldade"><SelectInput value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value as Difficulty })}><option value="easy">Fácil</option><option value="medium">Média</option><option value="hard">Difícil</option><option value="epic">Épica</option></SelectInput></FormField>
           <FormField label="Categoria"><TextInput maxLength={80} value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} /></FormField>
           <FormField label="Data alvo"><TextInput type="date" value={form.target_date} onChange={(event) => setForm({ ...form, target_date: event.target.value })} /></FormField>
           <FormField label="Meta de progresso"><TextInput type="number" min="1" required={form.type === "long_term"} value={form.progress_target} onChange={(event) => setForm({ ...form, progress_target: event.target.value })} /></FormField>
         </div>
-        <button className="button primary" disabled={busyId === "create"}>Registrar missao</button>
+        <button className="button primary" disabled={busyId === "create"}>Registrar missão</button>
       </form>
-      <section className="panel filters-panel" aria-label="Filtros de missoes">
+      <section className="panel filters-panel" aria-label="Filtros de missões">
         <h2 className="panel-heading">Filtros</h2>
         <div className="form-grid">
-          <FormField label="Status"><SelectInput value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}><option value="all">Todos</option><option value="active">Ativas</option><option value="completed">Concluidas</option><option value="archived">Arquivadas</option></SelectInput></FormField>
-          <FormField label="Tipo"><SelectInput value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as TypeFilter)}><option value="all">Todos</option><option value="daily">Diarias</option><option value="weekly">Semanais</option><option value="long_term">Campanhas</option></SelectInput></FormField>
+          <FormField label="Status"><SelectInput value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}><option value="all">Todos</option><option value="active">Ativas</option><option value="completed">Concluídas</option><option value="archived">Arquivadas</option></SelectInput></FormField>
+          <FormField label="Tipo"><SelectInput value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as TypeFilter)}><option value="all">Todos</option><option value="daily">Diárias</option><option value="weekly">Semanais</option><option value="long_term">Campanhas</option></SelectInput></FormField>
         </div>
       </section>
       {error ? <ErrorPanel>{error}</ErrorPanel> : null}
       {missions.status === "loading" ? <LoadingPanel /> : null}
       {missions.status === "error" ? <ErrorPanel>{missions.error}</ErrorPanel> : null}
-      {missions.status === "ready" ? <div className="mission-list">{visibleMissions.length ? visibleMissions.map(renderMission) : <EmptyState>Nenhuma missao encontrada para os filtros.</EmptyState>}</div> : null}
+      {missions.status === "ready" ? <div className="mission-list">{visibleMissions.length ? visibleMissions.map(renderMission) : <EmptyState>Nenhuma missão encontrada para os filtros.</EmptyState>}</div> : null}
     </section>
   );
 }
