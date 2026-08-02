@@ -15,6 +15,7 @@ from backend.app.models import (
 )
 from backend.app.schemas import (
     BadgeStatusRead,
+    CategoryCompletionRead,
     DashboardRead,
     DashboardTodayRead,
     DashboardWeeklyRead,
@@ -23,6 +24,7 @@ from backend.app.schemas import (
     WeeklyReportRead,
 )
 from backend.app.services.game_rules import level_from_total_xp
+from backend.app.services.streaks import recalculate_daily_streak
 
 
 def _monday(value: date) -> date:
@@ -96,11 +98,30 @@ def _build_weekly_report(
     )
     completion_dates: dict[int, set[date]] = defaultdict(set)
     completions_by_day: Counter[str] = Counter()
+    daily_completions = [0] * 7
     for completion in completions:
         completion_dates[completion.mission_id].add(completion.completed_at.date())
         completions_by_day[completion.completed_at.strftime("%A")] += 1
+        daily_completions[completion.completed_at.weekday()] += 1
+
+    mission_ids = {completion.mission_id for completion in completions}
+    missions_by_id = {
+        mission.id: mission
+        for mission in session.scalars(select(Mission).where(Mission.id.in_(mission_ids)))
+    }
+    category_counts: Counter[str] = Counter()
+    goals_completed: list[str] = []
+    for completion in completions:
+        mission = missions_by_id.get(completion.mission_id)
+        if mission is None:
+            continue
+        category_counts[mission.category or "Sem categoria"] += 1
+        if mission.type == MissionType.LONG_TERM:
+            goals_completed.append(mission.title)
 
     player = session.scalar(select(PlayerStats).limit(1))
+    if player is not None:
+        recalculate_daily_streak(session, player, reference_today)
     return WeeklyReportRead(
         week_start=week_start,
         week_end=week_end,
@@ -121,6 +142,15 @@ def _build_weekly_report(
         ),
         current_streak=player.current_streak if player else 0,
         best_streak=player.best_streak if player else 0,
+        daily_completions=daily_completions,
+        top_categories=[
+            CategoryCompletionRead(category=category, completions=count)
+            for category, count in sorted(
+                category_counts.items(),
+                key=lambda item: (-item[1], item[0].lower()),
+            )[:5]
+        ],
+        goals_completed=goals_completed,
     )
 
 
@@ -178,6 +208,8 @@ def _recent_badge(session: Session) -> BadgeStatusRead | None:
 def build_dashboard(session: Session, today: date | None = None) -> DashboardRead:
     effective_today = today or date.today()
     player = session.scalar(select(PlayerStats).limit(1))
+    if player is not None:
+        recalculate_daily_streak(session, player, effective_today)
     total_xp = player.total_xp if player else 0
     level, xp_into_level, xp_for_next_level = level_from_total_xp(total_xp)
     today_start = datetime.combine(effective_today, time.min)

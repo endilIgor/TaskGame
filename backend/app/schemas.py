@@ -136,6 +136,11 @@ class RewardPurchaseRead(BaseModel):
     purchased_at: datetime
 
 
+class BackupStatusRead(BaseModel):
+    last_mysql_dump_at: datetime | None
+    last_mysql_dump_filename: str | None
+
+
 class PlayerSummaryRead(BaseModel):
     total_xp: int
     gold: int
@@ -171,6 +176,11 @@ class GoalRead(MissionRead):
     progress_percent: int = Field(default=0, ge=0, le=100)
 
 
+class CategoryCompletionRead(BaseModel):
+    category: str
+    completions: int
+
+
 class WeeklyReportRead(BaseModel):
     week_start: date
     week_end: date
@@ -181,3 +191,6 @@ class WeeklyReportRead(BaseModel):
     best_day: str | None
     current_streak: int
     best_streak: int
+    daily_completions: list[int]
+    top_categories: list[CategoryCompletionRead]
+    goals_completed: list[str]

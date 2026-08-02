@@ -2,11 +2,23 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy.orm import Session
 
+from backend.app.config import Settings, get_settings
 from backend.app.database import get_session
-from backend.app.services.backup import completions_csv, export_all_json, missions_csv
+from backend.app.schemas import BackupStatusRead
+from backend.app.services.backup import (
+    completions_csv,
+    export_all_json,
+    missions_csv,
+    mysql_dump_status,
+)
 
 
 router = APIRouter(prefix="/api/backup", tags=["backup"])
+
+
+@router.get("/status", response_model=BackupStatusRead)
+def backup_status(settings: Settings = Depends(get_settings)) -> dict[str, object | None]:
+    return mysql_dump_status(settings.backup_dir)
 
 
 @router.get("/export.json")

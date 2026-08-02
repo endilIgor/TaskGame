@@ -1,3 +1,6 @@
+import { apiGet } from "./api.js";
+import type { BackupStatus } from "./types.js";
+
 type IsCurrent = () => boolean;
 
 function downloadLink(href: string, text: string): HTMLAnchorElement {
@@ -9,6 +12,21 @@ function downloadLink(href: string, text: string): HTMLAnchorElement {
 }
 
 export async function renderBackup(root: HTMLElement, isCurrent: IsCurrent = () => true): Promise<void> {
+  if (!isCurrent()) return;
+  root.replaceChildren(document.createTextNode("Carregando backup..."));
+  let status: BackupStatus;
+  try {
+    status = await apiGet<BackupStatus>("/backup/status");
+  } catch (error) {
+    if (isCurrent()) {
+      const failure = document.createElement("section");
+      failure.className = "error-panel";
+      const message = error instanceof Error ? error.message : "Erro desconhecido";
+      failure.textContent = `Nao foi possivel carregar o status do backup: ${message}`;
+      root.replaceChildren(failure);
+    }
+    return;
+  }
   if (!isCurrent()) return;
   const page = document.createElement("section");
   page.className = "view-page";
@@ -27,7 +45,12 @@ export async function renderBackup(root: HTMLElement, isCurrent: IsCurrent = () 
     downloadLink("/api/backup/missions.csv", "Missoes CSV"),
     downloadLink("/api/backup/completions.csv", "Conclusoes CSV"),
   );
-  panel.append(title, actions);
+  const dump = document.createElement("p");
+  dump.className = "mission-meta";
+  dump.textContent = status.last_mysql_dump_at === null
+    ? "Nenhum dump MySQL encontrado."
+    : `Ultimo dump: ${status.last_mysql_dump_filename ?? "arquivo desconhecido"} | ${new Date(status.last_mysql_dump_at).toLocaleString("pt-BR")}`;
+  panel.append(title, actions, dump);
   page.append(heading, panel);
   root.replaceChildren(page);
 }

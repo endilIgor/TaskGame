@@ -1,5 +1,3 @@
-from datetime import date
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -60,15 +58,20 @@ def advance_mission_progress(
     data: MissionProgressUpdate,
     session: Session = Depends(get_session),
 ):
-    return _mission_or_404(mission_service.advance_mission_progress(session, mission_id, data))
+    try:
+        mission = mission_service.advance_mission_progress(session, mission_id, data)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return _mission_or_404(mission)
 
 
 @router.post("/{mission_id}/complete", response_model=MissionCompletionRead)
 def complete_mission(
     mission_id: int,
-    completed_on: date | None = None,
     session: Session = Depends(get_session),
 ):
-    return _mission_or_404(
-        mission_service.complete_mission(session, mission_id, completed_on)
-    )
+    try:
+        completion = mission_service.complete_mission(session, mission_id)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return _mission_or_404(completion)

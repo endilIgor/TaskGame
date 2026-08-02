@@ -18,7 +18,9 @@ scripts/build_frontend.sh
 docker compose up --build
 ```
 
-Com os containers em execucao, abra `http://localhost:8000`. O MySQL fica apenas na rede interna do Compose; a aplicacao e exposta na porta `8000`.
+Com os containers em execucao, abra `http://localhost:8000`. O MySQL fica apenas na rede interna do Compose; a aplicacao e publicada somente em `127.0.0.1:8000` por padrao.
+
+`APP_PORT` altera a porta interna e publicada. `APP_HOST` controla o endereco em que o Uvicorn escuta dentro do container. Para acesso intencional pela rede local, defina `APP_BIND_ADDRESS=0.0.0.0` e ajuste `BACKEND_CORS_ORIGINS` para as origens de navegador necessarias. A API nao possui autenticacao, portanto nao use essa opcao em redes nao confiaveis.
 
 Para confirmar que os dados persistem, crie uma missao pela interface, pare os containers com `Ctrl+C`, execute `docker compose up` novamente e confirme que a missao continua visivel.
 
@@ -65,13 +67,20 @@ Com os containers ativos, crie um dump compactado do MySQL:
 docker compose exec app scripts/backup_mysql.sh
 ```
 
-O comando imprime um caminho no formato `/app/backups/mysql/taskgame-<timestamp>.sql.gz`. No host, os backups ficam em `backups/mysql/`, fora dos diretorios publicos do frontend. Para restaurar manualmente, use `scripts/restore_mysql.sh` com o caminho do arquivo `.sql.gz` e as mesmas variaveis do `.env`.
+O comando imprime um caminho no formato `/app/backups/mysql/taskgame-<timestamp>.sql.gz`. No host, os backups ficam em `backups/mysql/`, fora dos diretorios publicos do frontend. Os scripts usam somente as variaveis injetadas pelo Compose e nao carregam `.env` por conta propria.
+
+Para restaurar manualmente no container, use:
+
+```bash
+docker compose exec app scripts/restore_mysql.sh /app/backups/mysql/taskgame-YYYYMMDD-HHMMSS.sql.gz
+```
 
 ## Seguranca local
 
 - Mantenha `.env` fora do git e substitua as senhas de exemplo antes de usar o ambiente.
+- `.env` e suas variantes tambem ficam fora do contexto de build da imagem; apenas `.env.example` e retido.
 - O CORS aceita somente `http://localhost:8000` por padrao; altere `BACKEND_CORS_ORIGINS` apenas para origens locais necessarias.
-- O servico MySQL nao publica uma porta no host. Use a API em `http://localhost:8000` para acesso local.
+- O servico MySQL nao publica uma porta no host e a API escuta apenas no loopback do host por padrao.
 - Backups devem permanecer em `backups/`, que e ignorado pelo git e nao e servido pelo frontend.
 
 ## Proximos passos

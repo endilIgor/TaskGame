@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi.testclient import TestClient
 
 
@@ -70,3 +72,34 @@ def test_perfect_week_badge_unlocks_after_seven_completed_missions(client: TestC
     badges = client.get("/api/badges").json()
 
     assert "perfect_week" in {badge["code"] for badge in badges if badge["earned"]}
+
+
+def test_weekly_report_includes_daily_category_and_goal_analysis(client: TestClient):
+    daily = client.post(
+        "/api/missions",
+        json={
+            "title": "Estudar",
+            "type": "daily",
+            "difficulty": "easy",
+            "category": "Estudo",
+        },
+    ).json()
+    goal = client.post(
+        "/api/missions",
+        json={
+            "title": "Concluir modulo",
+            "type": "long_term",
+            "difficulty": "easy",
+            "category": "Estudo",
+            "progress_target": 1,
+        },
+    ).json()
+    client.post(f"/api/missions/{daily['id']}/complete")
+    client.post(f"/api/missions/{goal['id']}/progress", json={"amount": 1})
+
+    report = client.get("/api/reports/weekly").json()
+
+    assert sum(report["daily_completions"]) == 2
+    assert report["daily_completions"][date.today().weekday()] == 2
+    assert report["top_categories"] == [{"category": "Estudo", "completions": 2}]
+    assert report["goals_completed"] == ["Concluir modulo"]

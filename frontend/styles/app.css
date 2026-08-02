@@ -314,6 +314,11 @@ textarea:focus-visible,
   border-color: var(--gold-soft);
 }
 
+.button.danger {
+  color: var(--red);
+  border-color: var(--red);
+}
+
 .button:disabled {
   cursor: wait;
   opacity: 0.6;
@@ -362,6 +367,42 @@ textarea:focus-visible,
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.inline-editor {
+  margin-top: 4px;
+}
+
+.inline-editor summary {
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.compact-form,
+.history-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.history-row {
+  display: flex;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-controls {
+  grid-template-columns: minmax(180px, 320px) auto;
+  align-items: end;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .goal-list {
@@ -545,6 +586,15 @@ textarea:focus-visible,
 
   .row-actions {
     justify-content: flex-start;
+  }
+
+  .analysis-grid,
+  .history-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .history-row {
+    flex-direction: column;
   }
 
   .row-actions .button,

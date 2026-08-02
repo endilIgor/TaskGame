@@ -129,8 +129,6 @@ Conteudo:
 
 - Objetivos ativos.
 - Percentual de progresso.
-- Missoes vinculadas.
-- Historico de avancos.
 - Objetivos concluidos.
 
 ### Medalhas
@@ -194,7 +192,7 @@ Dados:
 - Melhor dia da semana.
 - Streak atual e maior streak.
 - Categorias mais fortes.
-- Objetivos que mais avancaram.
+- Objetivos concluidos na semana.
 
 Visual:
 

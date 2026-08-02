@@ -20,6 +20,17 @@ def list_rewards(session: Session, include_archived: bool = False) -> list[Rewar
     return list(session.scalars(statement))
 
 
+def list_purchases(session: Session) -> list[RewardPurchase]:
+    return list(
+        session.scalars(
+            select(RewardPurchase).order_by(
+                RewardPurchase.purchased_at.desc(),
+                RewardPurchase.id.desc(),
+            )
+        )
+    )
+
+
 def create_reward(session: Session, data: RewardCreate) -> Reward:
     reward = Reward(**data.model_dump())
     session.add(reward)

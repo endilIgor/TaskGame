@@ -1,7 +1,9 @@
 import csv
 import io
+import unicodedata
 from datetime import date, datetime
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
@@ -50,6 +52,20 @@ def export_all_json(session: Session) -> dict[str, object]:
     }
 
 
+def mysql_dump_status(backup_dir: str) -> dict[str, object | None]:
+    dumps = list((Path(backup_dir) / "mysql").glob("taskgame-*.sql.gz"))
+    if not dumps:
+        return {
+            "last_mysql_dump_at": None,
+            "last_mysql_dump_filename": None,
+        }
+    latest = max(dumps, key=lambda path: (path.stat().st_mtime, path.name))
+    return {
+        "last_mysql_dump_at": datetime.fromtimestamp(latest.stat().st_mtime),
+        "last_mysql_dump_filename": latest.name,
+    }
+
+
 def _csv_export(rows: list[dict[str, object]], columns: list[str]) -> str:
     output = io.StringIO()
     writer = csv.DictWriter(
@@ -70,8 +86,15 @@ def _csv_export(rows: list[dict[str, object]], columns: list[str]) -> str:
 
 
 def _escape_csv_formula(value: object) -> object:
-    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
-        return f"'{value}"
+    if isinstance(value, str):
+        first_content = 0
+        while first_content < len(value) and (
+            value[first_content].isspace()
+            or unicodedata.category(value[first_content]).startswith("C")
+        ):
+            first_content += 1
+        if first_content < len(value) and value[first_content] in "=+-@":
+            return f"'{value}"
     return value
 
 

@@ -33,3 +33,17 @@ def test_purchase_requires_enough_gold(client: TestClient):
 
     assert purchase.status_code == 400
     assert purchase.json()["detail"] == "Not enough gold"
+
+
+def test_reward_purchase_history_is_listed_newest_first(client: TestClient):
+    earn_gold(client, times=1)
+    reward = client.post(
+        "/api/rewards",
+        json={"name": "Livro", "cost": 20},
+    ).json()
+    purchased = client.post(f"/api/rewards/{reward['id']}/purchase").json()
+
+    response = client.get("/api/rewards/purchases")
+
+    assert response.status_code == 200
+    assert response.json() == [purchased]

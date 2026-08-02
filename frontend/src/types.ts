@@ -33,9 +33,25 @@ export interface MissionCreate {
   title: string;
   type: MissionType;
   difficulty: Difficulty;
+  description?: string;
   category?: string;
+  start_date?: string;
+  target_date?: string;
+  progress_current?: number;
   progress_target?: number;
   repeat_days?: number[];
+}
+
+export interface MissionUpdate {
+  title?: string;
+  description?: string | null;
+  type?: MissionType;
+  difficulty?: Difficulty;
+  category?: string | null;
+  start_date?: string;
+  target_date?: string | null;
+  repeat_days?: number[] | null;
+  progress_target?: number | null;
 }
 
 export interface BadgeStatus {
@@ -63,6 +79,15 @@ export interface RewardCreate {
   cost: number;
 }
 
+export type RewardUpdate = Partial<RewardCreate>;
+
+export interface RewardPurchase {
+  id: number;
+  reward_id: number;
+  cost_paid: number;
+  purchased_at: string;
+}
+
 export interface WeeklyReport {
   week_start: string;
   week_end: string;
@@ -73,6 +98,14 @@ export interface WeeklyReport {
   best_day: string | null;
   current_streak: number;
   best_streak: number;
+  daily_completions: number[];
+  top_categories: Array<{ category: string; completions: number }>;
+  goals_completed: string[];
+}
+
+export interface BackupStatus {
+  last_mysql_dump_at: string | null;
+  last_mysql_dump_filename: string | null;
 }
 
 export interface BackupExport {

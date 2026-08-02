@@ -23,6 +23,11 @@ def list_rewards(
     return reward_service.list_rewards(session, include_archived)
 
 
+@router.get("/purchases", response_model=list[RewardPurchaseRead])
+def list_reward_purchases(session: Session = Depends(get_session)):
+    return reward_service.list_purchases(session)
+
+
 @router.post("", response_model=RewardRead, status_code=status.HTTP_201_CREATED)
 def create_reward(data: RewardCreate, session: Session = Depends(get_session)):
     return reward_service.create_reward(session, data)

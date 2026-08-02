@@ -1,28 +1,51 @@
-function downloadLink(href, text) {
-    const link = document.createElement("a");
-    link.className = "button";
-    link.href = href;
-    link.textContent = text;
-    return link;
+import { apiGet } from "./api.js";
+function downloadLink(href        , text        )                    {
+  const link = document.createElement("a");
+  link.className = "button";
+  link.href = href;
+  link.textContent = text;
+  return link;
 }
-export async function renderBackup(root, isCurrent = () => true) {
-    if (!isCurrent())
-        return;
-    const page = document.createElement("section");
-    page.className = "view-page";
-    const heading = document.createElement("h1");
-    heading.className = "page-heading";
-    heading.textContent = "Backup";
-    const panel = document.createElement("section");
-    panel.className = "panel backup-panel";
-    const title = document.createElement("h2");
-    title.className = "panel-heading";
-    title.textContent = "Exportar dados";
-    const actions = document.createElement("div");
-    actions.className = "backup-actions";
-    actions.append(downloadLink("/api/backup/export.json", "JSON"), downloadLink("/api/backup/missions.csv", "Missoes CSV"), downloadLink("/api/backup/completions.csv", "Conclusoes CSV"));
-    panel.append(title, actions);
-    page.append(heading, panel);
-    root.replaceChildren(page);
+export async function renderBackup(root             , isCurrent            = () => true)                {
+  if (!isCurrent()) return;
+  root.replaceChildren(document.createTextNode("Carregando backup..."));
+  let status              ;
+  try {
+    status = await apiGet              ("/backup/status");
+  } catch (error) {
+    if (isCurrent()) {
+      const failure = document.createElement("section");
+      failure.className = "error-panel";
+      const message = error instanceof Error ? error.message : "Erro desconhecido";
+      failure.textContent = `Nao foi possivel carregar o status do backup: ${message}`;
+      root.replaceChildren(failure);
+    }
+    return;
+  }
+  if (!isCurrent()) return;
+  const page = document.createElement("section");
+  page.className = "view-page";
+  const heading = document.createElement("h1");
+  heading.className = "page-heading";
+  heading.textContent = "Backup";
+  const panel = document.createElement("section");
+  panel.className = "panel backup-panel";
+  const title = document.createElement("h2");
+  title.className = "panel-heading";
+  title.textContent = "Exportar dados";
+  const actions = document.createElement("div");
+  actions.className = "backup-actions";
+  actions.append(
+    downloadLink("/api/backup/export.json", "JSON"),
+    downloadLink("/api/backup/missions.csv", "Missoes CSV"),
+    downloadLink("/api/backup/completions.csv", "Conclusoes CSV"),
+  );
+  const dump = document.createElement("p");
+  dump.className = "mission-meta";
+  dump.textContent = status.last_mysql_dump_at === null
+    ? "Nenhum dump MySQL encontrado."
+    : `Ultimo dump: ${status.last_mysql_dump_filename ?? "arquivo desconhecido"} | ${new Date(status.last_mysql_dump_at).toLocaleString("pt-BR")}`;
+  panel.append(title, actions, dump);
+  page.append(heading, panel);
+  root.replaceChildren(page);
 }
-//# sourceMappingURL=backup.js.map
