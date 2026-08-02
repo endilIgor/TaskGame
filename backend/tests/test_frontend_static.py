@@ -101,3 +101,25 @@ def test_react_app_uses_stateful_shell_navigation():
         assert view in source
     assert "useState<ViewKey>" in source
     assert "setActiveView" in source
+
+
+def test_rpg_theme_css_contains_centered_premium_tokens():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert "--color-void" in css
+    assert "--color-arcane" in css
+    assert "--color-gold" in css
+    assert "max-width: 1440px" in css
+    assert ".hero-panel" in css
+    assert ".quest-card" in css
+    assert "@media (max-width: 720px)" in css
+    assert "@media (prefers-reduced-motion: reduce)" in css
+
+
+def test_dashboard_view_uses_live_dashboard_endpoint():
+    source = (FRONTEND / "src" / "views" / "DashboardView.tsx").read_text()
+
+    assert 'apiGet<DashboardData>("/dashboard")' in source
+    assert "XP para o proximo nivel" in source
+    assert "Missoes de hoje" in source
+    assert "Ouro" in source
