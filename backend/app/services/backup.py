@@ -59,8 +59,20 @@ def _csv_export(rows: list[dict[str, object]], columns: list[str]) -> str:
         extrasaction="ignore",
     )
     writer.writeheader()
-    writer.writerows(rows)
+    writer.writerows(
+        {
+            column: _escape_csv_formula(row.get(column))
+            for column in columns
+        }
+        for row in rows
+    )
     return output.getvalue()
+
+
+def _escape_csv_formula(value: object) -> object:
+    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
+        return f"'{value}"
+    return value
 
 
 def missions_csv(session: Session) -> str:
