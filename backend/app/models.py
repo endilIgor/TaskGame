@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import StrEnum
 
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -71,9 +71,13 @@ class Mission(Base):
 
 class MissionCompletion(Base):
     __tablename__ = "mission_completions"
+    __table_args__ = (
+        UniqueConstraint("mission_id", "completion_key", name="uq_mission_completion_key"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     mission_id: Mapped[int] = mapped_column(ForeignKey("missions.id"))
+    completion_key: Mapped[str] = mapped_column(String(64))
     completed_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     xp_awarded: Mapped[int] = mapped_column(Integer)
     gold_awarded: Mapped[int] = mapped_column(Integer)

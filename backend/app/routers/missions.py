@@ -42,7 +42,11 @@ def update_mission(
     data: MissionUpdate,
     session: Session = Depends(get_session),
 ):
-    return _mission_or_404(mission_service.update_mission(session, mission_id, data))
+    try:
+        mission = mission_service.update_mission(session, mission_id, data)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return _mission_or_404(mission)
 
 
 @router.post("/{mission_id}/archive", response_model=MissionRead)

@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, create_engine, inspect, select
 from sqlalchemy.orm import Session
 
-from backend.app.database import SessionLocal
+from backend.app.database import SessionLocal, ensure_mission_completion_schema
 from backend.app.main import create_app
-from backend.app.models import Badge, Base, PlayerStats
+from backend.app.models import Badge, Base, MissionCompletion, PlayerStats
 from backend.app.seed import seed_defaults
 
 
@@ -36,3 +38,64 @@ def test_app_startup_initializes_default_sqlite_database():
     with TestClient(create_app()):
         with SessionLocal() as session:
             assert session.query(Badge).count() == 8
+
+
+def test_mission_completion_schema_migration_adds_unique_key():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    metadata = MetaData()
+    missions = Table(
+        "missions",
+        metadata,
+        Column("id", Integer, primary_key=True),
+        Column("type", String(16), nullable=False),
+    )
+    completions = Table(
+        "mission_completions",
+        metadata,
+        Column("id", Integer, primary_key=True),
+        Column("mission_id", Integer, nullable=False),
+        Column("completed_at", DateTime, nullable=False),
+        Column("xp_awarded", Integer, nullable=False),
+        Column("gold_awarded", Integer, nullable=False),
+        Column("streak_bonus_percent", Integer, nullable=False),
+        Column("note", String),
+    )
+    metadata.create_all(engine)
+    with engine.begin() as connection:
+        connection.execute(missions.insert(), {"id": 1, "type": "daily"})
+        connection.execute(
+            completions.insert(),
+            [
+                {
+                    "id": 1,
+                    "mission_id": 1,
+                    "completed_at": datetime(2026, 8, 2, 9),
+                    "xp_awarded": 10,
+                    "gold_awarded": 5,
+                    "streak_bonus_percent": 0,
+                },
+                {
+                    "id": 2,
+                    "mission_id": 1,
+                    "completed_at": datetime(2026, 8, 2, 10),
+                    "xp_awarded": 10,
+                    "gold_awarded": 5,
+                    "streak_bonus_percent": 0,
+                },
+            ],
+        )
+
+    ensure_mission_completion_schema(engine)
+
+    inspector = inspect(engine)
+    assert "completion_key" in {
+        column["name"] for column in inspector.get_columns("mission_completions")
+    }
+    assert any(
+        index["name"] == "uq_mission_completion_key" and index["unique"]
+        for index in inspector.get_indexes("mission_completions")
+    )
+    with Session(engine) as session:
+        assert session.scalars(
+            select(MissionCompletion.completion_key).order_by(MissionCompletion.id)
+        ).all() == ["2026-08-02", "legacy-2"]
