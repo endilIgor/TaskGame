@@ -85,6 +85,24 @@ def test_liquidgl_vendor_file_exists_and_is_loaded_before_app():
     assert '<script src="/vendor/liquidGL.js" defer></script>' in index
 
 
+def test_production_dist_loads_liquidgl_before_the_app_bundle():
+    index = (FRONTEND / "dist" / "index.html").read_text()
+
+    assert index.index('<script src="/vendor/liquidGL.js" defer></script>') < index.index(
+        '<script type="module" crossorigin src="/assets/'
+    )
+
+
+def test_liquidgl_component_guards_strict_mode_replay_and_cleans_up_instances():
+    liquid_source = (FRONTEND / "src" / "components" / "LiquidGlassDecor.tsx").read_text()
+
+    assert "useRef" in liquid_source
+    assert "initializedRef.current" in liquid_source
+    assert "cleanupRef.current" in liquid_source
+    assert '"destroy"' in liquid_source
+    assert '"cleanup"' in liquid_source
+
+
 def test_liquidgl_css_never_targets_interactive_controls():
     css = (FRONTEND / "styles" / "app.css").read_text()
 
