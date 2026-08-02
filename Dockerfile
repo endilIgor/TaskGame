@@ -11,7 +11,6 @@ RUN pip install --no-index --find-links=/wheels ".[test]"
 
 COPY frontend ./frontend
 COPY scripts ./scripts
-COPY tsconfig.json ./
 
 RUN chmod +x scripts/*.sh
 RUN scripts/build_frontend.sh

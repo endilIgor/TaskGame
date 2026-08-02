@@ -6,7 +6,7 @@ TaskGame e um MVP local para organizar missoes, objetivos, recompensas e progres
 
 - Python 3.12, FastAPI, Pydantic e SQLAlchemy.
 - MySQL 8.4 em Docker Compose, com dados persistidos no volume `mysql_data`.
-- HTML, CSS, TypeScript e JavaScript puro no frontend, sem React ou npm.
+- React, TypeScript e Vite no frontend.
 
 ## Como rodar
 
@@ -30,7 +30,7 @@ Para confirmar que os dados persistem, crie uma missao pela interface, pare os c
 
 Se o build falhar dizendo que nao encontrou um pacote Python, confirme se o wheel correspondente existe em `vendor/wheels`. Recrie o wheelhouse em uma maquina com acesso a internet usando `pip download -d vendor/wheels ...` para as dependencias do `pyproject.toml`.
 
-O script usa `TSC_BIN` quando definido, depois `tsc` no PATH. Sem um compilador instalado, ele copia os modulos JavaScript pre-compilados e versionados em `frontend/prebuilt`, portanto funciona em um clone normal sem npm ou `package.json`.
+O script usa o Vite local quando disponivel. Em um clone sem dependencias instaladas, ele executa `npm ci` quando houver npm e o lockfile; no Docker, usa os arquivos de producao versionados em `frontend/dist`, sem npm ou Node na imagem.
 
 ## Como testar
 

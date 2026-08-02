@@ -7,5 +7,5 @@ __pycache__/
 *.pyc
 *.db
 backups/
-frontend/dist/*.js
-frontend/dist/*.js.map
+frontend/node_modules/
+frontend/.vite/
