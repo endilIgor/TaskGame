@@ -30,6 +30,13 @@ button {
   font: inherit;
 }
 
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
 .app-shell {
   min-height: 100vh;
 }
@@ -92,6 +99,11 @@ nav {
   gap: 24px;
 }
 
+.view-page {
+  display: grid;
+  gap: 24px;
+}
+
 .page-heading,
 .panel-heading {
   margin: 0;
@@ -112,6 +124,10 @@ nav {
 .stat-card,
 .panel,
 .mission-item,
+.mission-row,
+.goal-row,
+.badge-tile,
+.reward-tile,
 .error-panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -157,6 +173,7 @@ nav {
 }
 
 .progress-bar {
+  min-width: 0;
   height: 100%;
   background: var(--blue);
 }
@@ -187,6 +204,278 @@ nav {
   min-height: 74px;
   padding: 14px;
   gap: 6px;
+}
+
+.mission-form,
+.reward-form {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.form-field,
+.repeat-days {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+}
+
+.field-label,
+.report-period,
+.badge-status,
+.goal-percent,
+.reward-cost {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.button:focus-visible {
+  border-color: var(--blue);
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.day-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.day-option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.day-option input {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  max-width: 100%;
+  padding: 8px 12px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  text-align: center;
+  text-decoration: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled),
+.button:focus-visible {
+  border-color: var(--blue);
+}
+
+.button.primary {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
+
+.button.secondary {
+  color: var(--gold);
+  border-color: var(--gold-soft);
+}
+
+.button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.alert {
+  min-height: 20px;
+  margin: 0;
+  padding: 10px 12px;
+  overflow-wrap: anywhere;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.alert.error {
+  color: var(--red);
+  background: #2a131c;
+  border-color: var(--red);
+}
+
+.mission-row,
+.goal-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 96px;
+  gap: 14px;
+  padding: 14px;
+}
+
+.mission-details,
+.goal-row {
+  align-content: center;
+  gap: 6px;
+}
+
+.mission-details,
+.goal-list,
+.reward-grid,
+.badge-grid {
+  display: grid;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.goal-list {
+  gap: 10px;
+}
+
+.goal-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.goal-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-percent {
+  flex: 0 0 auto;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.badge-grid,
+.reward-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.badge-tile,
+.reward-tile {
+  display: grid;
+  min-height: 170px;
+  align-content: start;
+  gap: 10px;
+  padding: 16px;
+}
+
+.badge-tile.earned {
+  border-color: var(--gold);
+  opacity: 1;
+}
+
+.badge-tile.locked {
+  border-color: var(--muted);
+  opacity: 0.55;
+}
+
+.reward-name,
+.reward-cost {
+  overflow-wrap: anywhere;
+}
+
+.reward-cost {
+  color: var(--gold);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.reward-tile .button {
+  align-self: end;
+  justify-self: start;
+}
+
+.report-period {
+  margin: -12px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.report-chart {
+  min-height: 280px;
+}
+
+.bar-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(28px, 1fr));
+  min-height: 200px;
+  align-items: end;
+  gap: 10px;
+}
+
+.chart-column {
+  display: grid;
+  height: 200px;
+  align-items: end;
+  gap: 8px;
+}
+
+.chart-bar {
+  min-height: 8px;
+  background: var(--border);
+  border: 1px solid var(--muted);
+  border-radius: 4px 4px 0 0;
+}
+
+.chart-bar.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.chart-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.backup-panel {
+  max-width: 720px;
+}
+
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .mission-title {
@@ -248,5 +537,23 @@ nav {
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .mission-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .row-actions {
+    justify-content: flex-start;
+  }
+
+  .row-actions .button,
+  .backup-actions .button,
+  .reward-tile .button {
+    flex: 1 1 140px;
+  }
+
+  .bar-chart {
+    gap: 6px;
   }
 }

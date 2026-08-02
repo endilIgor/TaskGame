@@ -1,4 +1,9 @@
 import { renderDashboard } from "./dashboard.js";
+import { renderMissions, renderGoals } from "./missions.js";
+import { renderBadges } from "./badges.js";
+import { renderRewards } from "./rewards.js";
+import { renderReports } from "./reports.js";
+import { renderBackup } from "./backup.js";
 
 const viewTitles: Record<string, string> = {
   dashboard: "Dashboard",
@@ -10,25 +15,24 @@ const viewTitles: Record<string, string> = {
   backup: "Backup",
 };
 
-let currentNavigation = 0;
+type ViewRenderer = (root: HTMLElement, isCurrent: () => boolean) => Promise<void>;
 
-function renderPlaceholder(root: HTMLElement, title: string): void {
-  const panel = document.createElement("section");
-  panel.className = "panel";
-  const heading = document.createElement("h1");
-  heading.className = "page-heading";
-  heading.textContent = title;
-  panel.append(heading);
-  root.replaceChildren(panel);
-}
+const renderers: Record<string, ViewRenderer> = {
+  dashboard: renderDashboard,
+  missions: renderMissions,
+  goals: renderGoals,
+  badges: renderBadges,
+  rewards: renderRewards,
+  reports: renderReports,
+  backup: renderBackup,
+};
+
+let currentNavigation = 0;
 
 async function navigate(root: HTMLElement, view: string): Promise<void> {
   const navigation = ++currentNavigation;
-  if (view === "dashboard") {
-    await renderDashboard(root, () => navigation === currentNavigation);
-    return;
-  }
-  renderPlaceholder(root, viewTitles[view]);
+  const renderer = renderers[view];
+  if (renderer !== undefined) await renderer(root, () => navigation === currentNavigation);
 }
 
 const root = document.querySelector<HTMLElement>("#app");

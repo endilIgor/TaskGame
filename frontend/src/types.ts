@@ -1,3 +1,7 @@
+export type MissionType = "daily" | "weekly" | "long_term";
+export type Difficulty = "easy" | "medium" | "hard" | "epic";
+export type MissionStatus = "active" | "completed" | "archived";
+
 export interface PlayerSummary {
   total_xp: number;
   gold: number;
@@ -12,10 +16,10 @@ export interface Mission {
   id: number;
   title: string;
   description: string | null;
-  type: string;
-  difficulty: string;
+  type: MissionType;
+  difficulty: Difficulty;
   category: string | null;
-  status: string;
+  status: MissionStatus;
   start_date: string;
   target_date: string | null;
   repeat_days: number[] | null;
@@ -23,6 +27,15 @@ export interface Mission {
   progress_target: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface MissionCreate {
+  title: string;
+  type: MissionType;
+  difficulty: Difficulty;
+  category?: string;
+  progress_target?: number;
+  repeat_days?: number[];
 }
 
 export interface BadgeStatus {
@@ -34,6 +47,43 @@ export interface BadgeStatus {
   threshold: number;
   earned: boolean;
   earned_at: string | null;
+}
+
+export interface Reward {
+  id: number;
+  name: string;
+  description: string | null;
+  cost: number;
+  status: string;
+}
+
+export interface RewardCreate {
+  name: string;
+  description?: string;
+  cost: number;
+}
+
+export interface WeeklyReport {
+  week_start: string;
+  week_end: string;
+  missions_completed: number;
+  missions_failed: number;
+  xp_gained: number;
+  gold_gained: number;
+  best_day: string | null;
+  current_streak: number;
+  best_streak: number;
+}
+
+export interface BackupExport {
+  missions: Mission[];
+  mission_completions: unknown[];
+  player_stats: unknown[];
+  badges: unknown[];
+  earned_badges: unknown[];
+  rewards: Reward[];
+  reward_purchases: unknown[];
+  weekly_snapshots: unknown[];
 }
 
 export interface Dashboard {
