@@ -10,6 +10,8 @@ const viewTitles: Record<string, string> = {
   backup: "Backup",
 };
 
+let currentNavigation = 0;
+
 function renderPlaceholder(root: HTMLElement, title: string): void {
   const panel = document.createElement("section");
   panel.className = "panel";
@@ -21,8 +23,9 @@ function renderPlaceholder(root: HTMLElement, title: string): void {
 }
 
 async function navigate(root: HTMLElement, view: string): Promise<void> {
+  const navigation = ++currentNavigation;
   if (view === "dashboard") {
-    await renderDashboard(root);
+    await renderDashboard(root, () => navigation === currentNavigation);
     return;
   }
   renderPlaceholder(root, viewTitles[view]);

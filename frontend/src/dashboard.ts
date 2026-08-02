@@ -121,12 +121,22 @@ function renderDashboardData(root: HTMLElement, dashboard: Dashboard): void {
   root.replaceChildren(page);
 }
 
-export async function renderDashboard(root: HTMLElement): Promise<void> {
-  root.replaceChildren(createElement("p", "empty-state", "Carregando..."));
+export async function renderDashboard(
+  root: HTMLElement,
+  isCurrent: () => boolean = () => true,
+): Promise<void> {
+  if (isCurrent()) {
+    root.replaceChildren(createElement("p", "empty-state", "Carregando..."));
+  }
   try {
     const dashboard = await apiGet<Dashboard>("/dashboard");
-    renderDashboardData(root, dashboard);
+    if (isCurrent()) {
+      renderDashboardData(root, dashboard);
+    }
   } catch (error) {
+    if (!isCurrent()) {
+      return;
+    }
     const message = error instanceof Error ? error.message : "Erro desconhecido";
     root.replaceChildren(createElement("section", "error-panel", `Nao foi possivel carregar o dashboard: ${message}`));
   }

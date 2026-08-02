@@ -11,7 +11,8 @@ RUN pip install --no-cache-dir -e ".[test]"
 
 COPY . .
 
-RUN chmod +x scripts/*.sh || true
+RUN chmod +x scripts/*.sh
+RUN scripts/build_frontend.sh
 
 EXPOSE 8000
 
