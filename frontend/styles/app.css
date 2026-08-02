@@ -26,6 +26,7 @@
 }
 
 * { box-sizing: border-box; }
+html, body, #root { width: 100%; max-width: 100%; overflow-x: hidden; }
 
 body {
   min-width: 320px;
@@ -40,17 +41,22 @@ body {
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 
-.app-stage { position: relative; isolation: isolate; min-height: 100vh; padding: 24px; }
+.app-stage { position: relative; isolation: isolate; min-height: 100vh; overflow: hidden; padding: 24px; }
 .app-stage > :not(.liquid-glass-decor) { position: relative; z-index: 1; }
 .pointer-events-none { pointer-events: none; }
 
 .liquid-glass-decor {
   position: fixed;
-  inset: 0;
-  z-index: 0;
+  right: 38px;
+  bottom: 34px;
+  width: 42px;
+  height: 128px;
+  z-index: -1;
   background: linear-gradient(135deg, rgba(8, 13, 24, 0.24), rgba(3, 5, 11, 0.76));
   border: 1px solid rgba(154, 169, 193, 0.08);
-  box-shadow: inset 0 0 100px rgba(29, 140, 255, 0.06);
+  border-radius: 999px;
+  opacity: 0.28;
+  box-shadow: inset 0 0 70px rgba(29, 140, 255, 0.08), 0 0 45px rgba(29, 140, 255, 0.07);
 }
 
 .liquidgl-unavailable .liquid-glass-decor {
@@ -96,11 +102,12 @@ nav { display: flex; flex-direction: column; gap: 5px; }
 .nav-button:hover, .nav-button:focus-visible { color: var(--color-text); background: rgba(29, 140, 255, 0.09); border-color: rgba(29, 140, 255, 0.42); outline: none; }
 .nav-button.active { color: var(--color-text); background: rgba(29, 140, 255, 0.14); border-color: var(--color-arcane); }
 
-.content { width: 100%; min-width: 0; padding: 36px; }
-.guild-main, .view-page { display: grid; gap: 22px; }
-.dashboard { max-width: 1160px; }
+.content { width: 100%; max-width: 100%; min-width: 0; padding: 36px; overflow: hidden; }
+.guild-main, .view-page { display: grid; max-width: 100%; min-width: 0; gap: 22px; }
+.dashboard { max-width: 1160px; min-width: 0; }
 
 .hero-panel, .panel, .metric-card, .quest-card, .error-panel {
+  min-width: 0;
   border: 1px solid var(--color-border);
   border-radius: 6px;
 }
@@ -114,7 +121,8 @@ nav { display: flex; flex-direction: column; gap: 5px; }
   border-color: rgba(29, 140, 255, 0.52);
 }
 .hero-copy h1, .page-heading { margin: 4px 0 7px; font-size: 2.35rem; line-height: 1; }
-.hero-copy p, .badge-card p, .quest-description { margin: 0; color: var(--color-muted); line-height: 1.5; }
+.hero-copy, .hero-progress, .section-heading, .weekly-stats, .mission-list { min-width: 0; }
+.hero-copy p, .badge-card p, .quest-description { margin: 0; color: var(--color-muted); line-height: 1.5; overflow-wrap: anywhere; }
 .hero-progress { display: grid; gap: 10px; }
 .hero-total-xp { color: var(--color-gold); font-size: 0.85rem; font-weight: 700; }
 
@@ -158,7 +166,7 @@ nav { display: flex; flex-direction: column; gap: 5px; }
 .badge-emblem { display: grid; width: 46px; height: 46px; place-items: center; color: var(--color-gold); background: rgba(215, 169, 40, 0.13); border: 1px solid var(--color-gold); border-radius: 50%; font-size: 1.35rem; font-weight: 800; }
 .badge-name { margin: 2px 0 0; color: var(--color-gold); font-size: 1.08rem; }
 
-.empty-state { color: var(--color-muted); text-align: center; }
+.empty-state { color: var(--color-muted); overflow-wrap: anywhere; text-align: center; }
 .error-panel { padding: 20px; color: var(--color-danger); background: rgba(94, 23, 34, 0.52); }
 
 input, select, textarea { width: 100%; min-height: 40px; padding: 8px 10px; color: var(--color-text); background: var(--surface-2); border: 1px solid var(--color-border); border-radius: 5px; }
@@ -175,11 +183,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, .button:focus
 @media (min-width: 721px) { .guild-shell { grid-template-columns: 228px minmax(0, 1fr); } }
 @media (max-width: 720px) {
   .app-stage { padding: 0; }
-  .guild-shell { min-height: 100vh; border-right: 0; border-left: 0; }
+  .liquid-glass-decor { display: none; }
+  .guild-shell { grid-template-columns: 1fr; min-height: 100vh; border-right: 0; border-left: 0; }
+  .sidebar, .content { width: 100%; max-width: 100vw; min-width: 0; }
   .sidebar { position: sticky; top: 0; z-index: 2; gap: 11px; padding: 13px 16px; border-right: 0; border-bottom: 1px solid var(--color-border); }
-  nav { flex-direction: row; overflow-x: auto; padding-bottom: 2px; }.nav-button { flex: 0 0 auto; text-align: center; }
+  nav { width: 100%; max-width: 100%; min-width: 0; flex-direction: row; overflow-x: auto; padding-bottom: 2px; }.nav-button { flex: 0 0 auto; text-align: center; }
   .content { padding: 22px 16px; }.hero-panel { grid-template-columns: 1fr; gap: 22px; padding: 22px; }.hero-copy h1, .page-heading { font-size: 2rem; }
-  .metric-grid, .today-grid, .report-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }.metric-card { min-height: 106px; }.dashboard-grid, .analysis-grid, .history-controls { grid-template-columns: 1fr; }.weekly-stats { grid-template-columns: 1fr; }.quest-card-header, .quest-meta { align-items: start; flex-direction: column; gap: 8px; }.mission-row { grid-template-columns: 1fr; }.mission-actions { min-width: 0; }.row-actions { justify-content: flex-start; }.history-row { flex-direction: column; }
+  .metric-grid, .today-grid, .report-metrics { grid-template-columns: 1fr; }.metric-card { min-height: 106px; }.dashboard-grid, .analysis-grid, .history-controls { grid-template-columns: 1fr; }.weekly-stats { grid-template-columns: 1fr; }.quest-card-header, .quest-meta { align-items: start; flex-direction: column; gap: 8px; }.mission-row { grid-template-columns: 1fr; }.mission-actions { min-width: 0; }.row-actions { justify-content: flex-start; }.history-row { flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }

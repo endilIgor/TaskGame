@@ -117,6 +117,20 @@ def test_liquidgl_css_never_targets_interactive_controls():
         assert selector not in css
 
 
+def test_liquidgl_does_not_snapshot_or_cover_functional_shell():
+    shell = (FRONTEND / "src" / "components" / "AppShell.tsx").read_text()
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert "data-liquid-ignore" in shell
+    assert "inset: 0" not in css
+    assert ".liquid-glass-decor" in css
+    assert "z-index: -1" in css
+    assert "@media (max-width: 720px)" in css
+    assert ".guild-shell { grid-template-columns: 1fr;" in css
+    assert ".sidebar, .content { width: 100%; max-width: 100vw;" in css
+    assert "display: none" in css
+
+
 def test_build_script_has_docker_safe_dist_fallback():
     source = (ROOT / "scripts" / "build_frontend.sh").read_text()
 
