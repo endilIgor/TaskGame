@@ -121,6 +121,34 @@ def test_completion_rejects_ineligible_missions(client: TestClient):
     assert client.get("/api/dashboard").json()["player"]["total_xp"] == 0
 
 
+def test_archived_mission_can_be_restored(client: TestClient):
+    mission = client.post(
+        "/api/missions",
+        json={"title": "Organizar backlog", "type": "weekly", "difficulty": "easy"},
+    ).json()
+    client.post(f"/api/missions/{mission['id']}/archive")
+
+    restored = client.post(f"/api/missions/{mission['id']}/restore")
+
+    assert restored.status_code == 200
+    assert restored.json()["status"] == "active"
+    listed = client.get("/api/missions").json()
+    assert [item["title"] for item in listed] == ["Organizar backlog"]
+
+
+def test_delete_mission_removes_it_from_lists(client: TestClient):
+    mission = client.post(
+        "/api/missions",
+        json={"title": "Missao descartavel", "type": "daily", "difficulty": "easy"},
+    ).json()
+
+    deleted = client.delete(f"/api/missions/{mission['id']}")
+
+    assert deleted.status_code == 204
+    assert client.get("/api/missions?include_archived=true").json() == []
+    assert client.delete(f"/api/missions/{mission['id']}").status_code == 404
+
+
 def test_public_completion_does_not_accept_date_override(client: TestClient):
     mission = client.post(
         "/api/missions",

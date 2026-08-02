@@ -9,6 +9,10 @@ async function request<TResponse>(path: string, init?: RequestInit): Promise<TRe
     throw new Error(message || `Request failed with ${response.status}`);
   }
 
+  if (response.status === 204) {
+    return undefined as TResponse;
+  }
+
   return (await response.json()) as TResponse;
 }
 
@@ -28,4 +32,8 @@ export async function apiPatch<TResponse, TBody = unknown>(path: string, body: T
     method: "PATCH",
     body: JSON.stringify(body),
   });
+}
+
+export async function apiDelete<TResponse = void>(path: string): Promise<TResponse> {
+  return request<TResponse>(path, { method: "DELETE" });
 }

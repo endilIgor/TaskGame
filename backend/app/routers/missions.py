@@ -52,6 +52,19 @@ def archive_mission(mission_id: int, session: Session = Depends(get_session)):
     return _mission_or_404(mission_service.archive_mission(session, mission_id))
 
 
+@router.post("/{mission_id}/restore", response_model=MissionRead)
+def restore_mission(mission_id: int, session: Session = Depends(get_session)):
+    return _mission_or_404(mission_service.restore_mission(session, mission_id))
+
+
+@router.delete("/{mission_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_mission(mission_id: int, session: Session = Depends(get_session)):
+    deleted = mission_service.delete_mission(session, mission_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Mission not found")
+    return None
+
+
 @router.post("/{mission_id}/progress", response_model=MissionRead)
 def advance_mission_progress(
     mission_id: int,

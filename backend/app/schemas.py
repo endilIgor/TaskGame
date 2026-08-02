@@ -181,7 +181,18 @@ class CategoryCompletionRead(BaseModel):
     completions: int
 
 
+class ReportDayRead(BaseModel):
+    date: date
+    label: str
+    completions: int
+    xp_gained: int
+    gold_gained: int
+
+
 class WeeklyReportRead(BaseModel):
+    period_type: str = "weekly"
+    period_start: date
+    period_end: date
     week_start: date
     week_end: date
     missions_completed: int
@@ -192,5 +203,6 @@ class WeeklyReportRead(BaseModel):
     current_streak: int
     best_streak: int
     daily_completions: list[int]
+    daily_activity: list[ReportDayRead]
     top_categories: list[CategoryCompletionRead]
     goals_completed: list[str]

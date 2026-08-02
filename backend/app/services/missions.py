@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -158,6 +158,36 @@ def archive_mission(session: Session, mission_id: int) -> Mission | None:
     session.commit()
     session.refresh(mission)
     return mission
+
+
+def restore_mission(session: Session, mission_id: int) -> Mission | None:
+    mission = _get_mission(session, mission_id)
+    if mission is None:
+        return None
+
+    if mission.status == MissionStatus.ARCHIVED:
+        mission.status = MissionStatus.ACTIVE
+        session.commit()
+        session.refresh(mission)
+    return mission
+
+
+def delete_mission(session: Session, mission_id: int) -> bool:
+    mission = _get_mission(session, mission_id)
+    if mission is None:
+        return False
+
+    for completion in list(mission.completions):
+        session.delete(completion)
+    session.delete(mission)
+    session.flush()
+
+    player = get_player(session)
+    player.total_xp = session.scalar(select(func.coalesce(func.sum(MissionCompletion.xp_awarded), 0))) or 0
+    player.gold = session.scalar(select(func.coalesce(func.sum(MissionCompletion.gold_awarded), 0))) or 0
+    recalculate_daily_streak(session, player, date.today())
+    session.commit()
+    return True
 
 
 def advance_mission_progress(

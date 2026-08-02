@@ -195,6 +195,8 @@ def test_missions_view_supports_create_complete_progress_and_archive_flows():
     assert 'apiPost<Mission, MissionCreatePayload>("/missions"' in source
     assert '`/missions/${mission.id}/complete`' in source
     assert '`/missions/${mission.id}/archive`' in source
+    assert '`/missions/${mission.id}/restore`' in source
+    assert 'apiDelete(`/missions/${mission.id}`)' in source
     assert '`/missions/${mission.id}/progress`' in source
 
 
@@ -237,7 +239,9 @@ def test_rewards_reports_backup_views_use_existing_endpoints():
     assert 'apiGet<Reward[]>("/rewards")' in rewards
     assert 'apiPost<Reward, RewardCreatePayload>("/rewards"' in rewards
     assert 'apiPost<RewardPurchase>(`/rewards/${reward.id}/purchase`)' in rewards
-    assert 'apiGet<WeeklyReport>("/reports/weekly")' in reports
+    assert 'apiGet<ReportPeriod>(endpoint)' in reports
+    assert '"/reports/weekly"' in reports
+    assert '"/reports/monthly"' in reports
     assert 'apiGet<BackupStatus>("/backup/status")' in backup
     assert 'href="/api/backup/export.json"' in backup
     assert 'href="/api/backup/missions.csv"' in backup
@@ -274,6 +278,18 @@ def test_reports_use_non_punitive_failure_copy():
     assert "Pontos de atencao" in source
     assert "Missoes falhas" not in source
     assert 'tone="danger"' not in source
+
+
+def test_reports_view_supports_weekly_and_monthly_breakdowns_with_xp_and_gold():
+    source = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
+
+    assert 'ReportPeriod' in source
+    assert '"/reports/monthly"' in source
+    assert '"/reports/weekly"' in source
+    assert "daily_activity" in source
+    assert "xp_gained" in source
+    assert "gold_gained" in source
+    assert "Conclusoes do periodo" in source
 
 
 def test_legacy_manual_frontend_files_are_removed():

@@ -21,6 +21,7 @@ from backend.app.schemas import (
     DashboardWeeklyRead,
     GoalRead,
     PlayerSummaryRead,
+    ReportDayRead,
     WeeklyReportRead,
 )
 from backend.app.services.game_rules import level_from_total_xp
@@ -31,13 +32,25 @@ def _monday(value: date) -> date:
     return value - timedelta(days=value.weekday())
 
 
-def _completion_bounds(week_start: date) -> tuple[datetime, datetime, date]:
-    week_end = week_start + timedelta(days=6)
-    return (
-        datetime.combine(week_start, time.min),
-        datetime.combine(week_end, time.max),
-        week_end,
-    )
+def _month_start(value: date) -> date:
+    return value.replace(day=1)
+
+
+def _month_end(value: date) -> date:
+    if value.month == 12:
+        return value.replace(year=value.year + 1, month=1, day=1) - timedelta(days=1)
+    return value.replace(month=value.month + 1, day=1) - timedelta(days=1)
+
+
+WEEKDAY_LABELS = [
+    "Segunda-feira",
+    "Terca-feira",
+    "Quarta-feira",
+    "Quinta-feira",
+    "Sexta-feira",
+    "Sabado",
+    "Domingo",
+]
 
 
 def _repeat_days(mission: Mission) -> set[int]:
@@ -83,11 +96,18 @@ def _missions_failed(
 
 def _build_weekly_report(
     session: Session,
-    week_start: date,
+    period_start: date,
     reference_today: date,
+    period_type: str = "weekly",
 ) -> WeeklyReportRead:
-    week_start = _monday(week_start)
-    start_at, end_at, week_end = _completion_bounds(week_start)
+    if period_type == "monthly":
+        period_start = _month_start(period_start)
+        period_end = _month_end(period_start)
+    else:
+        period_start = _monday(period_start)
+        period_end = period_start + timedelta(days=6)
+    start_at = datetime.combine(period_start, time.min)
+    end_at = datetime.combine(period_end, time.max)
     completions = list(
         session.scalars(
             select(MissionCompletion)
@@ -98,11 +118,35 @@ def _build_weekly_report(
     )
     completion_dates: dict[int, set[date]] = defaultdict(set)
     completions_by_day: Counter[str] = Counter()
-    daily_completions = [0] * 7
+    day_count = (period_end - period_start).days + 1
+    daily_activity = [
+        ReportDayRead(
+            date=period_start + timedelta(days=index),
+            label=(
+                WEEKDAY_LABELS[(period_start + timedelta(days=index)).weekday()][:3]
+                if period_type == "weekly"
+                else str((period_start + timedelta(days=index)).day).zfill(2)
+            ),
+            completions=0,
+            xp_gained=0,
+            gold_gained=0,
+        )
+        for index in range(day_count)
+    ]
     for completion in completions:
-        completion_dates[completion.mission_id].add(completion.completed_at.date())
-        completions_by_day[completion.completed_at.strftime("%A")] += 1
-        daily_completions[completion.completed_at.weekday()] += 1
+        completed_on = completion.completed_at.date()
+        completion_dates[completion.mission_id].add(completed_on)
+        completions_by_day[WEEKDAY_LABELS[completed_on.weekday()]] += 1
+        day_index = (completed_on - period_start).days
+        if 0 <= day_index < len(daily_activity):
+            current_day = daily_activity[day_index]
+            daily_activity[day_index] = current_day.model_copy(
+                update={
+                    "completions": current_day.completions + 1,
+                    "xp_gained": current_day.xp_gained + completion.xp_awarded,
+                    "gold_gained": current_day.gold_gained + completion.gold_awarded,
+                }
+            )
 
     mission_ids = {completion.mission_id for completion in completions}
     missions_by_id = {
@@ -123,13 +167,16 @@ def _build_weekly_report(
     if player is not None:
         recalculate_daily_streak(session, player, reference_today)
     return WeeklyReportRead(
-        week_start=week_start,
-        week_end=week_end,
+        period_type=period_type,
+        period_start=period_start,
+        period_end=period_end,
+        week_start=period_start,
+        week_end=period_end,
         missions_completed=len(completions),
         missions_failed=_missions_failed(
             session,
-            week_start,
-            week_end,
+            period_start,
+            period_end,
             reference_today,
             completion_dates,
         ),
@@ -142,7 +189,8 @@ def _build_weekly_report(
         ),
         current_streak=player.current_streak if player else 0,
         best_streak=player.best_streak if player else 0,
-        daily_completions=daily_completions,
+        daily_completions=[day.completions for day in daily_activity],
+        daily_activity=daily_activity,
         top_categories=[
             CategoryCompletionRead(category=category, completions=count)
             for category, count in sorted(
@@ -160,6 +208,19 @@ def build_weekly_report(
 ) -> WeeklyReportRead:
     reference_today = date.today()
     return _build_weekly_report(session, week_start or _monday(reference_today), reference_today)
+
+
+def build_monthly_report(
+    session: Session,
+    month_start: date | None = None,
+) -> WeeklyReportRead:
+    reference_today = date.today()
+    return _build_weekly_report(
+        session,
+        month_start or _month_start(reference_today),
+        reference_today,
+        period_type="monthly",
+    )
 
 
 def list_goals(session: Session) -> list[GoalRead]:

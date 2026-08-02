@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { apiGet, apiPatch, apiPost } from "../api/client";
+import { apiDelete, apiGet, apiPatch, apiPost } from "../api/client";
 import { FormField, SelectInput, TextArea, TextInput } from "../components/FormControls";
 import { MissionCard } from "../components/MissionCard";
 import { EmptyState, ErrorPanel, LoadingPanel } from "../components/StatePanels";
@@ -102,12 +102,15 @@ export function MissionsView() {
     }
   }
 
-  async function runMissionAction(mission: Mission, action: "complete" | "archive" | "progress") {
+  async function runMissionAction(mission: Mission, action: "complete" | "archive" | "restore" | "delete" | "progress") {
+    if (action === "delete" && !window.confirm(`Apagar "${mission.title}" permanentemente?`)) return;
     setBusyId(mission.id);
     setError(null);
     try {
       if (action === "complete") await apiPost(`/missions/${mission.id}/complete`);
       if (action === "archive") await apiPost<Mission>(`/missions/${mission.id}/archive`);
+      if (action === "restore") await apiPost<Mission>(`/missions/${mission.id}/restore`);
+      if (action === "delete") await apiDelete(`/missions/${mission.id}`);
       if (action === "progress") await apiPost<Mission, MissionProgressPayload>(`/missions/${mission.id}/progress`, { amount: 1 });
       refresh();
     } catch (cause) {
@@ -148,6 +151,7 @@ export function MissionsView() {
   function renderMission(mission: Mission) {
     const editForm = editing[mission.id];
     const isActive = mission.status === "active";
+    const isArchived = mission.status === "archived";
     const eligibleToday = isActive && isStarted(mission) && isScheduledToday(mission);
     const longTermTargetReached = mission.type === "long_term" && mission.progress_target !== null && mission.progress_current >= mission.progress_target;
     const canProgress = eligibleToday && mission.type === "long_term" && mission.progress_target !== null && mission.progress_current < mission.progress_target;
@@ -186,7 +190,9 @@ export function MissionsView() {
                 {canComplete ? <button className="button primary" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "complete")}>Concluir</button> : null}
                 {canProgress ? <button className="button primary" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "progress")}>+1 progresso</button> : null}
                 {isActive ? <button className="button danger" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "archive")}>Arquivar</button> : <span className="badge-status">{mission.status === "completed" ? "Concluida" : "Arquivada"}</span>}
+                {isArchived ? <button className="button primary" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "restore")}>Restaurar</button> : null}
                 <button className="button" type="button" disabled={busyId === mission.id} onClick={() => setEditing((current) => ({ ...current, [mission.id]: formFromMission(mission) }))}>Editar</button>
+                <button className="button danger" type="button" disabled={busyId === mission.id} onClick={() => runMissionAction(mission, "delete")}>Apagar</button>
               </div>
               {isActive && mission.type === "long_term" ? <span className="badge-status">Campanhas concluem automaticamente ao atingir a meta.</span> : null}
             </>

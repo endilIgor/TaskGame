@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.database import get_session
 from backend.app.schemas import WeeklyReportRead
-from backend.app.services.reports import build_weekly_report
+from backend.app.services.reports import build_monthly_report, build_weekly_report
 
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
@@ -22,3 +22,16 @@ def weekly_report_for_week(
     session: Session = Depends(get_session),
 ) -> WeeklyReportRead:
     return build_weekly_report(session, week_start)
+
+
+@router.get("/monthly", response_model=WeeklyReportRead)
+def monthly_report(session: Session = Depends(get_session)) -> WeeklyReportRead:
+    return build_monthly_report(session)
+
+
+@router.get("/monthly/{month_start}", response_model=WeeklyReportRead)
+def monthly_report_for_month(
+    month_start: date,
+    session: Session = Depends(get_session),
+) -> WeeklyReportRead:
+    return build_monthly_report(session, month_start)

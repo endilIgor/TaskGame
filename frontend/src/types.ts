@@ -110,7 +110,18 @@ export interface RewardPurchase {
   purchased_at: string;
 }
 
-export interface WeeklyReport {
+export interface ReportDay {
+  date: string;
+  label: string;
+  completions: number;
+  xp_gained: number;
+  gold_gained: number;
+}
+
+export interface ReportPeriod {
+  period_type: "weekly" | "monthly";
+  period_start: string;
+  period_end: string;
   week_start: string;
   week_end: string;
   missions_completed: number;
@@ -121,9 +132,12 @@ export interface WeeklyReport {
   current_streak: number;
   best_streak: number;
   daily_completions: number[];
+  daily_activity: ReportDay[];
   top_categories: Array<{ category: string; completions: number }>;
   goals_completed: string[];
 }
+
+export type WeeklyReport = ReportPeriod;
 
 export interface BackupStatus {
   last_mysql_dump_at: string | null;
