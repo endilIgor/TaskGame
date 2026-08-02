@@ -1,8 +1,13 @@
+x-taskgame-env: &taskgame-env
+  - path: .env.example
+    required: true
+  - path: .env
+    required: false
+
 services:
   app:
     build: .
-    env_file:
-      - .env
+    env_file: *taskgame-env
     ports:
       - "8000:8000"
     depends_on:
@@ -13,11 +18,7 @@ services:
 
   db:
     image: mysql:8.4
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    env_file: *taskgame-env
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
