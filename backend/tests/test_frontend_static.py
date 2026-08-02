@@ -123,3 +123,11 @@ def test_dashboard_view_uses_live_dashboard_endpoint():
     assert "XP para o proximo nivel" in source
     assert "Missoes de hoje" in source
     assert "Ouro" in source
+
+
+def test_progress_bar_clamps_aria_value_to_safe_maximum():
+    source = (FRONTEND / "src" / "components" / "ProgressBar.tsx").read_text()
+
+    assert "const safeMax = Math.max(max, 1);" in source
+    assert "const clampedValue = Math.min(safeMax, Math.max(0, value));" in source
+    assert "aria-valuenow={clampedValue}" in source

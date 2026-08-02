@@ -6,7 +6,8 @@ interface ProgressBarProps {
 
 export function ProgressBar({ value, max, label }: ProgressBarProps) {
   const safeMax = Math.max(max, 1);
-  const percentage = Math.min(100, Math.max(0, (value / safeMax) * 100));
+  const clampedValue = Math.min(safeMax, Math.max(0, value));
+  const percentage = (clampedValue / safeMax) * 100;
 
   return (
     <div className="progress-bar-group">
@@ -14,7 +15,7 @@ export function ProgressBar({ value, max, label }: ProgressBarProps) {
         <span>{label}</span>
         <strong>{value} / {max}</strong>
       </div>
-      <div className="progress-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={safeMax} aria-valuenow={Math.max(0, value)}>
+      <div className="progress-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={safeMax} aria-valuenow={clampedValue}>
         <div className="progress-bar" style={{ width: `${percentage}%` }} />
       </div>
     </div>
