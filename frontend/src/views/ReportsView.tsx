@@ -48,19 +48,19 @@ export function ReportsView() {
                 <span className="chart-value">{total}</span>
                 <div
                   className="chart-bar reward-comparison"
-                  style={{ height: `${Math.max(8, total / maximum * 100)}%` }}
+                  style={{ flexDirection: "column", height: `${Math.max(8, total / maximum * 100)}%` }}
                   aria-label={`${day.label}: ${total} conclusões, ${day.xp_gained} XP, ${day.gold_gained} ouro`}
                 >
                   {hasRewards ? (
                     <>
-                    <div className="chart-reward-segment xp" style={{ flexGrow: Math.max(day.xp_gained, 0), flexBasis: `${day.xp_gained / rewardTotal * 100}%` }}>
-                      <span>XP</span>
-                      <strong>{day.xp_gained}</strong>
-                    </div>
-                    <div className="chart-reward-segment gold" style={{ flexGrow: Math.max(day.gold_gained, 0), flexBasis: `${day.gold_gained / rewardTotal * 100}%` }}>
-                      <span>Ouro</span>
-                      <strong>{day.gold_gained}</strong>
-                    </div>
+                      <div className="chart-reward-segment xp" style={{ flexGrow: Math.max(day.xp_gained, 0), flexBasis: `${day.xp_gained / rewardTotal * 100}%` }}>
+                        <span>XP</span>
+                        <strong>{day.xp_gained}</strong>
+                      </div>
+                      <div className="chart-reward-segment gold" style={{ flexGrow: Math.max(day.gold_gained, 0), flexBasis: `${day.gold_gained / rewardTotal * 100}%` }}>
+                        <span>Ouro</span>
+                        <strong>{day.gold_gained}</strong>
+                      </div>
                     </>
                   ) : null}
                 </div>

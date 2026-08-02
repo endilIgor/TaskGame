@@ -310,10 +310,13 @@ def test_reports_reward_chart_uses_blue_xp_and_gold_inside_the_main_bar():
     assert 'className="chart-reward-segment gold"' in source
     assert ">XP<" in source
     assert ">Ouro<" in source
+    assert "flexDirection: \"column\"" in source
     assert ".chart-reward-segment.xp" in css
     assert "var(--color-arcane)" in css
     assert ".chart-reward-segment.gold" in css
     assert "var(--color-gold)" in css
+    assert "justify-content: center" in css
+    assert "space-between" not in css[css.index(".chart-reward-segment"):]
 
 
 def test_legacy_manual_frontend_files_are_removed():
