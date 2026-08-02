@@ -202,8 +202,13 @@ export async function renderMissions(root: HTMLElement, isCurrent: IsCurrent = (
   try {
     const missions = await apiGet<Mission[]>("/missions");
     if (!isCurrent()) return;
+    const activeMissions = missions.filter((mission) => mission.status === "active");
     const page = element("section", "view-page");
-    page.append(element("h1", "page-heading", "Missoes"), createMissionForm(root, isCurrent), createMissionList(root, missions, isCurrent));
+    page.append(
+      element("h1", "page-heading", "Missoes"),
+      createMissionForm(root, isCurrent),
+      createMissionList(root, activeMissions, isCurrent),
+    );
     root.replaceChildren(page);
   } catch (error) {
     if (isCurrent()) root.replaceChildren(element("section", "error-panel", `Nao foi possivel carregar as missoes: ${errorMessage(error)}`));

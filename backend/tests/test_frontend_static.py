@@ -14,15 +14,23 @@ def test_frontend_routes_all_taskgame_views():
     frontend = Path(__file__).resolve().parents[2] / "frontend" / "src"
     app_source = (frontend / "app.ts").read_text()
 
-    expected_views = {
-        "missions.ts": "renderMissions",
-        "missions.ts": "renderGoals",
-        "badges.ts": "renderBadges",
-        "rewards.ts": "renderRewards",
-        "reports.ts": "renderReports",
-        "backup.ts": "renderBackup",
-    }
-    for filename, renderer in expected_views.items():
+    expected_views = [
+        ("missions.ts", "renderMissions"),
+        ("missions.ts", "renderGoals"),
+        ("badges.ts", "renderBadges"),
+        ("rewards.ts", "renderRewards"),
+        ("reports.ts", "renderReports"),
+        ("backup.ts", "renderBackup"),
+    ]
+    for filename, renderer in expected_views:
         source = (frontend / filename).read_text()
         assert f"export async function {renderer}" in source
         assert renderer in app_source
+
+
+def test_missions_view_renders_only_active_missions():
+    frontend = Path(__file__).resolve().parents[2] / "frontend" / "src"
+    source = (frontend / "missions.ts").read_text()
+
+    assert 'const activeMissions = missions.filter((mission) => mission.status === "active");' in source
+    assert "createMissionList(root, activeMissions, isCurrent)" in source
