@@ -13,8 +13,13 @@ export function LiquidGlassDecor() {
       return;
     }
 
+    if (!document.querySelector(".liquid-glass-decor") || typeof window.liquidGL !== "function") {
+      document.documentElement.classList.add("liquidgl-unavailable");
+      return;
+    }
+
     try {
-      window.liquidGL?.({
+      window.liquidGL({
         target: ".liquid-glass-decor",
         snapshot: "body",
         refraction: 0.018,

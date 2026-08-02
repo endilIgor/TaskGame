@@ -76,6 +76,29 @@ def test_liquidgl_is_decorative_and_guarded():
     assert "@media (prefers-reduced-motion: reduce)" in styles
 
 
+def test_liquidgl_vendor_file_exists_and_is_loaded_before_app():
+    index = (FRONTEND / "index.html").read_text()
+    vendor = FRONTEND / "public" / "vendor" / "liquidGL.js"
+
+    assert vendor.exists()
+    assert vendor.stat().st_size > 1000
+    assert '<script src="/vendor/liquidGL.js" defer></script>' in index
+
+
+def test_liquidgl_css_never_targets_interactive_controls():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    forbidden = [
+        ".button.liquid",
+        "input.liquid",
+        "select.liquid",
+        "textarea.liquid",
+        ".quest-card.liquid-glass-decor",
+    ]
+    for selector in forbidden:
+        assert selector not in css
+
+
 def test_build_script_has_docker_safe_dist_fallback():
     source = (ROOT / "scripts" / "build_frontend.sh").read_text()
 

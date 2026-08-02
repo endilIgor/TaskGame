@@ -8,6 +8,14 @@ TaskGame e um MVP local para organizar missoes, objetivos, recompensas e progres
 - MySQL 8.4 em Docker Compose, com dados persistidos no volume `mysql_data`.
 - React, TypeScript e Vite no frontend.
 
+## Frontend assets
+
+`frontend/public/vendor/liquidGL.js` vendors liquidGL v2.0.1 from
+[`naughtyduk/liquidGL`](https://github.com/naughtyduk/liquidGL) at commit
+`28e7c1a64a96c46449e9f494acee98c8490d9824`. It is used only for the
+non-interactive `.liquid-glass-decor` background layer. liquidGL is licensed
+under the [MIT License](https://github.com/naughtyduk/liquidGL/blob/main/package/LICENSE).
+
 ## Como rodar
 
 Crie a configuracao local a partir do exemplo e ajuste as senhas antes de iniciar. O arquivo `.env` e local e nao deve ser versionado.
