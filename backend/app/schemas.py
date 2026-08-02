@@ -134,3 +134,50 @@ class RewardPurchaseRead(BaseModel):
     reward_id: int
     cost_paid: int
     purchased_at: datetime
+
+
+class PlayerSummaryRead(BaseModel):
+    total_xp: int
+    gold: int
+    level: int
+    xp_into_level: int
+    xp_for_next_level: int
+    current_streak: int
+    best_streak: int
+
+
+class DashboardTodayRead(BaseModel):
+    completed: int
+    active: int
+    overdue: int
+
+
+class DashboardWeeklyRead(BaseModel):
+    missions_completed: int
+    xp_gained: int
+    gold_gained: int
+    best_day: str | None
+
+
+class DashboardRead(BaseModel):
+    player: PlayerSummaryRead
+    today: DashboardTodayRead
+    weekly: DashboardWeeklyRead
+    upcoming_missions: list[MissionRead]
+    recent_badge: BadgeStatusRead | None
+
+
+class GoalRead(MissionRead):
+    progress_percent: int = Field(default=0, ge=0, le=100)
+
+
+class WeeklyReportRead(BaseModel):
+    week_start: date
+    week_end: date
+    missions_completed: int
+    missions_failed: int
+    xp_gained: int
+    gold_gained: int
+    best_day: str | None
+    current_streak: int
+    best_streak: int

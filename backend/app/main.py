@@ -1,16 +1,15 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from backend.app.config import get_settings
-from backend.app.database import get_session, init_database
-from backend.app.models import PlayerStats
+from backend.app.database import init_database
 from backend.app.routers.badges import router as badges_router
+from backend.app.routers.dashboard import router as dashboard_router
 from backend.app.routers.missions import router as missions_router
+from backend.app.routers.reports import router as reports_router
 from backend.app.routers.rewards import router as rewards_router
 
 
@@ -37,19 +36,11 @@ def create_app(init_db: bool = True) -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "ok", "app": settings.app_name}
 
-    @app.get("/api/dashboard")
-    def dashboard(session: Session = Depends(get_session)) -> dict[str, dict[str, int]]:
-        player = session.scalar(select(PlayerStats).limit(1))
-        return {
-            "player": {
-                "total_xp": player.total_xp if player else 0,
-                "gold": player.gold if player else 0,
-            }
-        }
-
     app.include_router(missions_router)
     app.include_router(badges_router)
     app.include_router(rewards_router)
+    app.include_router(dashboard_router)
+    app.include_router(reports_router)
 
     return app
 

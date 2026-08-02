@@ -12,6 +12,7 @@ from backend.app.models import (
     RewardPurchase,
 )
 from backend.app.schemas import BadgeStatusRead
+from backend.app.services.reports import build_weekly_report
 
 
 def _has_rows(session: Session, statement: Select[tuple[int]]) -> bool:
@@ -22,6 +23,7 @@ def evaluate_badges(session: Session) -> list[EarnedBadge]:
     player = session.scalar(select(PlayerStats).limit(1))
     current_streak = player.current_streak if player else 0
     total_xp = player.total_xp if player else 0
+    weekly_report = build_weekly_report(session)
     conditions = {
         "streak_7": current_streak >= 7,
         "streak_30": current_streak >= 30,
@@ -36,6 +38,10 @@ def evaluate_badges(session: Session) -> list[EarnedBadge]:
         "first_reward": _has_rows(session, select(RewardPurchase.id)),
         "xp_1000": total_xp >= 1000,
         "xp_10000": total_xp >= 10000,
+        "perfect_week": (
+            weekly_report.missions_failed == 0
+            and weekly_report.missions_completed >= 7
+        ),
     }
     badges = list(session.scalars(select(Badge).where(Badge.code.in_(conditions))).all())
     earned_badge_ids = set(

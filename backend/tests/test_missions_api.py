@@ -104,10 +104,9 @@ def test_same_day_completion_returns_existing_completion_without_double_award(cl
     assert first_completion.status_code == 200
     assert repeated_completion.status_code == 200
     assert repeated_completion.json()["id"] == first_completion.json()["id"]
-    assert client.get("/api/dashboard").json()["player"] == {
-        "total_xp": 10,
-        "gold": 5,
-    }
+    player = client.get("/api/dashboard").json()["player"]
+    assert player["total_xp"] == 10
+    assert player["gold"] == 5
 
 
 def test_mission_completion_has_unique_mission_completion_key_constraint():
