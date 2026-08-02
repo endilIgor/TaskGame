@@ -33,14 +33,14 @@ export interface Mission {
 export interface MissionCreatePayload {
   title: string;
   type: MissionType;
-  difficulty: Difficulty;
+  difficulty?: Difficulty;
   description?: string | null;
   category?: string | null;
   start_date?: string;
   target_date?: string | null;
   progress_current?: number;
-  progress_target?: number;
-  repeat_days?: number[];
+  progress_target?: number | null;
+  repeat_days?: number[] | null;
 }
 
 export type MissionCreate = MissionCreatePayload;
