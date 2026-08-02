@@ -1,8 +1,12 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from backend.app.models import Difficulty, MissionStatus, MissionType
+
+
+def minimum_campaign_target_date(start_date: date) -> date:
+    return start_date + timedelta(days=30)
 
 
 class MissionCreate(BaseModel):
@@ -28,6 +32,10 @@ class MissionCreate(BaseModel):
     def validate_long_term_progress(self) -> "MissionCreate":
         if self.type == MissionType.LONG_TERM and self.progress_target is None:
             raise ValueError("progress_target is required for long_term missions")
+        if self.type == MissionType.LONG_TERM:
+            minimum_target = minimum_campaign_target_date(self.start_date)
+            if self.target_date is None or self.target_date < minimum_target:
+                raise ValueError("target_date must be at least 30 days after start_date for long_term missions")
         return self
 
 

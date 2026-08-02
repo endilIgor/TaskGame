@@ -212,7 +212,11 @@ def test_missions_view_requires_a_positive_long_term_progress_target_before_post
 
     assert 'if (form.type === "long_term" && (!Number.isInteger(target) || target < 1))' in source
     assert '"Campanhas precisam de uma meta de progresso positiva."' in source
+    assert '"Campanhas precisam de uma data alvo de pelo menos 1 mês."' in source
     assert 'required={form.type === "long_term"}' in source
+    assert "campaignMinDate()" in source
+    assert 'form.type === "long_term" ?' in source
+    assert 'editForm.type === "long_term" ?' in source
 
 
 def test_missions_view_filters_edits_and_gates_actions_by_backend_rules():

@@ -32,6 +32,16 @@ def get_session() -> Iterator[Session]:
 
 def ensure_mission_completion_schema(target_engine: Engine) -> None:
     inspector = inspect(target_engine)
+    if "missions" in inspector.get_table_names():
+        mission_columns = {
+            column["name"] for column in inspector.get_columns("missions")
+        }
+        if "deleted_at" not in mission_columns:
+            with target_engine.begin() as connection:
+                connection.execute(
+                    text("ALTER TABLE missions ADD COLUMN deleted_at DATETIME")
+                )
+
     if "mission_completions" not in inspector.get_table_names():
         return
 

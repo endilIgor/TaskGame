@@ -1,11 +1,11 @@
 from datetime import date, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.app.models import Mission, MissionCompletion, MissionStatus, MissionType, PlayerStats
-from backend.app.schemas import MissionCreate, MissionProgressUpdate, MissionUpdate
+from backend.app.schemas import MissionCreate, MissionProgressUpdate, MissionUpdate, minimum_campaign_target_date
 from backend.app.services.badges import evaluate_badges
 from backend.app.services.game_rules import apply_xp_bonus, base_rewards, streak_bonus_percent
 from backend.app.services.streaks import is_daily_scheduled, recalculate_daily_streak
@@ -34,9 +34,25 @@ def _get_mission(
     mission_id: int,
     for_update: bool = False,
 ) -> Mission | None:
-    if not for_update:
-        return session.get(Mission, mission_id)
-    return session.scalar(select(Mission).where(Mission.id == mission_id).with_for_update())
+    statement = select(Mission).where(Mission.id == mission_id).where(Mission.deleted_at.is_(None))
+    if for_update:
+        statement = statement.with_for_update()
+    return session.scalar(statement)
+
+
+def _validate_long_term_target(
+    mission_type: MissionType,
+    start_date: date,
+    target_date: date | None,
+    progress_target: int | None,
+) -> None:
+    if mission_type != MissionType.LONG_TERM:
+        return
+    if progress_target is None:
+        raise ValueError("progress_target is required for long_term missions")
+    minimum_target = minimum_campaign_target_date(start_date)
+    if target_date is None or target_date < minimum_target:
+        raise ValueError("target_date must be at least 30 days after start_date for long_term missions")
 
 
 def _completion_key(mission: Mission, completion_date: date) -> str:
@@ -113,7 +129,7 @@ def _award_completion(
 
 
 def list_missions(session: Session, include_archived: bool = False) -> list[Mission]:
-    statement = select(Mission).order_by(Mission.id)
+    statement = select(Mission).where(Mission.deleted_at.is_(None)).order_by(Mission.id)
     if not include_archived:
         statement = statement.where(Mission.status != MissionStatus.ARCHIVED)
     return list(session.scalars(statement))
@@ -136,9 +152,10 @@ def update_mission(session: Session, mission_id: int, data: MissionUpdate) -> Mi
 
     values = data.model_dump(exclude_unset=True)
     mission_type = values.get("type", mission.type)
+    start_date = values.get("start_date", mission.start_date)
+    target_date = values.get("target_date", mission.target_date)
     progress_target = values.get("progress_target", mission.progress_target)
-    if mission_type == MissionType.LONG_TERM and progress_target is None:
-        raise ValueError("progress_target is required for long_term missions")
+    _validate_long_term_target(mission_type, start_date, target_date, progress_target)
     if "repeat_days" in values:
         values["repeat_days"] = _repeat_days_value(values["repeat_days"])
     for field, value in values.items():
@@ -177,14 +194,8 @@ def delete_mission(session: Session, mission_id: int) -> bool:
     if mission is None:
         return False
 
-    for completion in list(mission.completions):
-        session.delete(completion)
-    session.delete(mission)
-    session.flush()
-
+    mission.deleted_at = datetime.now()
     player = get_player(session)
-    player.total_xp = session.scalar(select(func.coalesce(func.sum(MissionCompletion.xp_awarded), 0))) or 0
-    player.gold = session.scalar(select(func.coalesce(func.sum(MissionCompletion.gold_awarded), 0))) or 0
     recalculate_daily_streak(session, player, date.today())
     session.commit()
     return True

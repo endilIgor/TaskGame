@@ -31,6 +31,7 @@ def recalculate_daily_streak(
             select(Mission)
             .where(Mission.type == MissionType.DAILY)
             .where(Mission.status == MissionStatus.ACTIVE)
+            .where(Mission.deleted_at.is_(None))
             .where(Mission.start_date <= reference_date)
             .order_by(Mission.start_date, Mission.id)
         )

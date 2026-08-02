@@ -70,6 +70,7 @@ def _missions_failed(
         select(Mission).where(
             Mission.status == MissionStatus.ACTIVE,
             Mission.type.in_((MissionType.DAILY, MissionType.WEEKLY)),
+            Mission.deleted_at.is_(None),
         )
     )
     failed = 0
@@ -228,6 +229,7 @@ def list_goals(session: Session) -> list[GoalRead]:
         select(Mission)
         .where(Mission.type == MissionType.LONG_TERM)
         .where(Mission.status != MissionStatus.ARCHIVED)
+        .where(Mission.deleted_at.is_(None))
         .order_by(Mission.id)
     )
     goals = []
@@ -285,12 +287,14 @@ def build_dashboard(session: Session, today: date | None = None) -> DashboardRea
         select(func.count())
         .select_from(Mission)
         .where(Mission.status == MissionStatus.ACTIVE)
+        .where(Mission.deleted_at.is_(None))
         .where(Mission.start_date <= effective_today)
     )
     overdue = session.scalar(
         select(func.count())
         .select_from(Mission)
         .where(Mission.status == MissionStatus.ACTIVE)
+        .where(Mission.deleted_at.is_(None))
         .where(Mission.target_date.is_not(None))
         .where(Mission.target_date < effective_today)
     )
@@ -298,6 +302,7 @@ def build_dashboard(session: Session, today: date | None = None) -> DashboardRea
         session.scalars(
             select(Mission)
             .where(Mission.status == MissionStatus.ACTIVE)
+            .where(Mission.deleted_at.is_(None))
             .order_by(Mission.target_date.is_(None), Mission.target_date, Mission.id)
         )
     )

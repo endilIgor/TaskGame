@@ -124,3 +124,22 @@ def test_mission_completion_schema_migration_adds_unique_key():
         assert session.scalars(
             select(MissionCompletion.completion_key).order_by(MissionCompletion.id)
         ).all() == ["2026-08-02", "legacy-2"]
+
+
+def test_mission_schema_migration_adds_deleted_at():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    metadata = MetaData()
+    Table(
+        "missions",
+        metadata,
+        Column("id", Integer, primary_key=True),
+        Column("title", String(120), nullable=False),
+    )
+    metadata.create_all(engine)
+
+    ensure_mission_completion_schema(engine)
+
+    inspector = inspect(engine)
+    assert "deleted_at" in {
+        column["name"] for column in inspector.get_columns("missions")
+    }

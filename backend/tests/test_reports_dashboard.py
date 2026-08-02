@@ -1,6 +1,10 @@
-from datetime import date
+from datetime import date, timedelta
 
 from fastapi.testclient import TestClient
+
+
+def campaign_target_date() -> str:
+    return (date.today() + timedelta(days=31)).isoformat()
 
 
 def test_dashboard_contains_player_progress_and_recent_badge(client: TestClient):
@@ -33,6 +37,7 @@ def test_goals_returns_long_term_missions(client: TestClient):
             "type": "long_term",
             "difficulty": "hard",
             "progress_target": 5,
+            "target_date": campaign_target_date(),
         },
     )
 
@@ -123,6 +128,7 @@ def test_weekly_report_includes_daily_category_and_goal_analysis(client: TestCli
             "difficulty": "easy",
             "category": "Estudo",
             "progress_target": 1,
+            "target_date": campaign_target_date(),
         },
     ).json()
     client.post(f"/api/missions/{daily['id']}/complete")

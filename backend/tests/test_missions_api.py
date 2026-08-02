@@ -6,6 +6,10 @@ from sqlalchemy import UniqueConstraint
 from backend.app.models import MissionCompletion
 
 
+def campaign_target_date(days: int = 31) -> str:
+    return (date.today() + timedelta(days=days)).isoformat()
+
+
 def test_create_list_and_complete_mission(client: TestClient):
     created = client.post(
         "/api/missions",
@@ -47,6 +51,7 @@ def test_long_term_progress_completion(client: TestClient):
             "type": "long_term",
             "difficulty": "hard",
             "progress_target": 10,
+            "target_date": campaign_target_date(),
         },
     )
     mission_id = response.json()["id"]
@@ -66,6 +71,7 @@ def test_long_term_progress_target_completes_and_awards_atomically(client: TestC
             "type": "long_term",
             "difficulty": "hard",
             "progress_target": 5,
+            "target_date": campaign_target_date(),
         },
     )
     mission_id = response.json()["id"]
@@ -103,6 +109,7 @@ def test_completion_rejects_ineligible_missions(client: TestClient):
             "type": "long_term",
             "difficulty": "hard",
             "progress_target": 10,
+            "target_date": campaign_target_date(),
         },
     ]
 
@@ -141,12 +148,49 @@ def test_delete_mission_removes_it_from_lists(client: TestClient):
         "/api/missions",
         json={"title": "Missao descartavel", "type": "daily", "difficulty": "easy"},
     ).json()
+    completed = client.post(f"/api/missions/{mission['id']}/complete")
+    assert completed.status_code == 200
+    player_before = client.get("/api/dashboard").json()["player"]
 
     deleted = client.delete(f"/api/missions/{mission['id']}")
 
     assert deleted.status_code == 204
     assert client.get("/api/missions?include_archived=true").json() == []
     assert client.delete(f"/api/missions/{mission['id']}").status_code == 404
+    assert client.post(f"/api/missions/{mission['id']}/complete").status_code == 404
+    player_after = client.get("/api/dashboard").json()["player"]
+    assert player_after["total_xp"] == player_before["total_xp"]
+    assert player_after["gold"] == player_before["gold"]
+    weekly = client.get("/api/reports/weekly").json()
+    assert weekly["missions_completed"] == 1
+    assert weekly["xp_gained"] == completed.json()["xp_awarded"]
+    assert weekly["gold_gained"] == completed.json()["gold_awarded"]
+    backup = client.get("/api/backup/export.json").json()
+    assert len(backup["mission_completions"]) == 1
+
+
+def test_create_long_term_requires_target_date_at_least_one_month(client: TestClient):
+    base_payload = {
+        "title": "Escrever livro",
+        "type": "long_term",
+        "difficulty": "hard",
+        "progress_target": 10,
+    }
+
+    missing_target = client.post("/api/missions", json=base_payload)
+    too_soon = client.post(
+        "/api/missions",
+        json={**base_payload, "target_date": campaign_target_date(29)},
+    )
+    valid = client.post(
+        "/api/missions",
+        json={**base_payload, "target_date": campaign_target_date(30)},
+    )
+
+    assert missing_target.status_code == 422
+    assert too_soon.status_code == 422
+    assert valid.status_code == 201
+    assert valid.json()["target_date"] == campaign_target_date(30)
 
 
 def test_public_completion_does_not_accept_date_override(client: TestClient):
@@ -202,6 +246,7 @@ def test_update_rejects_clearing_long_term_progress_target(client: TestClient):
             "type": "long_term",
             "difficulty": "medium",
             "progress_target": 8,
+            "target_date": campaign_target_date(),
         },
     )
     mission_id = created.json()["id"]

@@ -15,6 +15,12 @@ function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function campaignMinDate(): string {
+  const minimumDate = new Date();
+  minimumDate.setDate(minimumDate.getDate() + 30);
+  return minimumDate.toISOString().slice(0, 10);
+}
+
 function todayWeekday(): number {
   const day = new Date().getDay();
   return day === 0 ? 6 : day - 1;
@@ -48,7 +54,7 @@ function payloadFromForm(form: MissionFormState): MissionCreatePayload {
     difficulty: form.difficulty,
     description: form.description.trim() || null,
     category: form.category.trim() || null,
-    target_date: form.target_date || null,
+    target_date: form.type === "long_term" ? form.target_date || null : null,
     progress_target: form.type === "long_term" ? Number(form.progress_target) : null,
   };
 }
@@ -58,6 +64,9 @@ function validateMissionForm(form: MissionFormState): string | null {
   const target = Number(form.progress_target);
   if (form.type === "long_term" && (!Number.isInteger(target) || target < 1)) {
     return "Campanhas precisam de uma meta de progresso positiva.";
+  }
+  if (form.type === "long_term" && (!form.target_date || form.target_date < campaignMinDate())) {
+    return "Campanhas precisam de uma data alvo de pelo menos 1 mês.";
   }
   return null;
 }
@@ -164,7 +173,7 @@ export function MissionsView() {
           {editForm ? (
             <form className="compact-form" onSubmit={(event) => { event.preventDefault(); void saveMission(mission, editForm); }}>
               <TextInput required maxLength={120} value={editForm.title} aria-label={`Título de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { title: event.target.value })} />
-              <SelectInput value={editForm.type} aria-label={`Tipo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { type: event.target.value as MissionType, progress_target: event.target.value === "long_term" ? editForm.progress_target : "" })}>
+              <SelectInput value={editForm.type} aria-label={`Tipo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { type: event.target.value as MissionType, target_date: event.target.value === "long_term" ? editForm.target_date : "", progress_target: event.target.value === "long_term" ? editForm.progress_target : "" })}>
                 <option value="daily">Diária</option>
                 <option value="weekly">Semanal</option>
                 <option value="long_term">Campanha</option>
@@ -176,8 +185,12 @@ export function MissionsView() {
                 <option value="epic">Épica</option>
               </SelectInput>
               <TextInput maxLength={80} value={editForm.category} placeholder="Categoria" aria-label={`Categoria de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { category: event.target.value })} />
-              <TextInput type="date" value={editForm.target_date} aria-label={`Data alvo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { target_date: event.target.value })} />
-              <TextInput type="number" min="1" required={editForm.type === "long_term"} value={editForm.progress_target} placeholder="Meta de progresso" aria-label={`Meta de progresso de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { progress_target: event.target.value })} />
+              {editForm.type === "long_term" ? (
+                <>
+                  <TextInput type="date" min={campaignMinDate()} required={editForm.type === "long_term"} value={editForm.target_date} aria-label={`Data alvo de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { target_date: event.target.value })} />
+                  <TextInput type="number" min="1" required={editForm.type === "long_term"} value={editForm.progress_target} placeholder="Meta de progresso" aria-label={`Meta de progresso de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { progress_target: event.target.value })} />
+                </>
+              ) : null}
               <TextArea value={editForm.description} placeholder="Descrição" aria-label={`Descrição de ${mission.title}`} onChange={(event) => updateEditForm(mission.id, { description: event.target.value })} />
               <div className="row-actions">
                 <button className="button primary" disabled={busyId === mission.id}>Salvar</button>
@@ -210,11 +223,15 @@ export function MissionsView() {
         <div className="form-grid">
           <FormField label="Título"><TextInput required maxLength={120} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></FormField>
           <FormField label="Descrição"><TextArea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></FormField>
-          <FormField label="Tipo"><SelectInput value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as MissionType, progress_target: event.target.value === "long_term" ? form.progress_target : "" })}><option value="daily">Diária</option><option value="weekly">Semanal</option><option value="long_term">Campanha</option></SelectInput></FormField>
+          <FormField label="Tipo"><SelectInput value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as MissionType, target_date: event.target.value === "long_term" ? form.target_date : "", progress_target: event.target.value === "long_term" ? form.progress_target : "" })}><option value="daily">Diária</option><option value="weekly">Semanal</option><option value="long_term">Campanha</option></SelectInput></FormField>
           <FormField label="Dificuldade"><SelectInput value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value as Difficulty })}><option value="easy">Fácil</option><option value="medium">Média</option><option value="hard">Difícil</option><option value="epic">Épica</option></SelectInput></FormField>
           <FormField label="Categoria"><TextInput maxLength={80} value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} /></FormField>
-          <FormField label="Data alvo"><TextInput type="date" value={form.target_date} onChange={(event) => setForm({ ...form, target_date: event.target.value })} /></FormField>
-          <FormField label="Meta de progresso"><TextInput type="number" min="1" required={form.type === "long_term"} value={form.progress_target} onChange={(event) => setForm({ ...form, progress_target: event.target.value })} /></FormField>
+          {form.type === "long_term" ? (
+            <>
+              <FormField label="Data alvo"><TextInput type="date" min={campaignMinDate()} required={form.type === "long_term"} value={form.target_date} onChange={(event) => setForm({ ...form, target_date: event.target.value })} /></FormField>
+              <FormField label="Meta de progresso"><TextInput type="number" min="1" required={form.type === "long_term"} value={form.progress_target} onChange={(event) => setForm({ ...form, progress_target: event.target.value })} /></FormField>
+            </>
+          ) : null}
         </div>
         <button className="button primary" disabled={busyId === "create"}>Registrar missão</button>
       </form>

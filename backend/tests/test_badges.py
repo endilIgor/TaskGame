@@ -1,4 +1,10 @@
+from datetime import date, timedelta
+
 from fastapi.testclient import TestClient
+
+
+def campaign_target_date() -> str:
+    return (date.today() + timedelta(days=31)).isoformat()
 
 
 def test_xp_badge_unlocks_after_threshold(client: TestClient):
@@ -18,7 +24,13 @@ def test_xp_badge_unlocks_after_threshold(client: TestClient):
 def test_first_goal_badge_unlocks_when_long_term_goal_completes(client: TestClient):
     mission = client.post(
         "/api/missions",
-        json={"title": "Ler livro", "type": "long_term", "difficulty": "medium", "progress_target": 2},
+        json={
+            "title": "Ler livro",
+            "type": "long_term",
+            "difficulty": "medium",
+            "progress_target": 2,
+            "target_date": campaign_target_date(),
+        },
     ).json()
 
     client.post(f"/api/missions/{mission['id']}/progress", json={"amount": 2})
