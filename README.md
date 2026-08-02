@@ -26,7 +26,7 @@ Para confirmar que os dados persistem, crie uma missao pela interface, pare os c
 
 O build da imagem instala pacotes Debian a partir de `deb.debian.org`. Em ambientes onde esse host nao resolve por DNS, `docker compose up --build` falha antes de iniciar os containers. Corrija a conectividade ou a resolucao DNS do ambiente e execute o comando novamente.
 
-Se o compilador `tsc` nao estiver no PATH do host, rode a compilacao dentro da imagem Docker durante `docker compose up --build`, ou disponibilize um compilador TypeScript compativel localmente.
+O script usa `TSC_BIN` quando definido, depois `tsc` no PATH e, neste ambiente, o compilador TypeScript local em `/home/nagi/.hermes/hermes-agent/node_modules/typescript/bin/tsc`. Isso permite executar o build local sem npm ou `package.json`.
 
 ## Como testar
 
@@ -37,11 +37,7 @@ scripts/build_frontend.sh
 pytest backend/tests -v
 ```
 
-O `.env` de desenvolvimento aponta para o MySQL do Compose (`db`). Para executar a suite no host sem os containers, use o banco SQLite de teste:
-
-```bash
-DATABASE_URL=sqlite+pysqlite:///:memory: pytest backend/tests -v
-```
+Os testes definem automaticamente um banco SQLite em memoria antes de importar a aplicacao, portanto o comando acima funciona mesmo depois de criar o `.env` para o Compose.
 
 Depois que a aplicacao estiver ativa, verifique a API:
 
@@ -74,7 +70,7 @@ O comando imprime um caminho no formato `/app/backups/mysql/taskgame-<timestamp>
 ## Seguranca local
 
 - Mantenha `.env` fora do git e substitua as senhas de exemplo antes de usar o ambiente.
-- O CORS aceita somente `http://localhost:8000` e `http://127.0.0.1:8000` por padrao; altere `BACKEND_CORS_ORIGINS` apenas para origens locais necessarias.
+- O CORS aceita somente `http://localhost:8000` por padrao; altere `BACKEND_CORS_ORIGINS` apenas para origens locais necessarias.
 - O servico MySQL nao publica uma porta no host. Use a API em `http://localhost:8000` para acesso local.
 - Backups devem permanecer em `backups/`, que e ignorado pelo git e nao e servido pelo frontend.
 

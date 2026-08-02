@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     app_name: str = "TaskGame"
     app_host: str = "0.0.0.0"
     app_port: int = 8000
-    backend_cors_origins: str = "http://localhost:8000,http://127.0.0.1:8000"
+    backend_cors_origins: str = "http://localhost:8000"
     database_url: str = "sqlite+pysqlite:///:memory:"
     backup_dir: str = Field(default="./backups")
 

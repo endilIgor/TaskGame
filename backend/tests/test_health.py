@@ -10,3 +10,17 @@ def test_health_endpoint_returns_ok():
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "app": "TaskGame"}
+
+
+def test_cors_rejects_loopback_ip_origin():
+    client = TestClient(create_app())
+
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "http://127.0.0.1:8000",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.headers.get("access-control-allow-origin") is None
