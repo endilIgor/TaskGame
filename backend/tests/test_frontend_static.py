@@ -131,3 +131,28 @@ def test_progress_bar_clamps_aria_value_to_safe_maximum():
     assert "const safeMax = Math.max(max, 1);" in source
     assert "const clampedValue = Math.min(safeMax, Math.max(0, value));" in source
     assert "aria-valuenow={clampedValue}" in source
+
+
+def test_missions_view_supports_create_complete_progress_and_archive_flows():
+    source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
+
+    assert 'apiGet<Mission[]>("/missions?include_archived=true")' in source
+    assert 'apiPost<Mission, MissionCreatePayload>("/missions"' in source
+    assert '`/missions/${mission.id}/complete`' in source
+    assert '`/missions/${mission.id}/archive`' in source
+    assert '`/missions/${mission.id}/progress`' in source
+
+
+def test_rewards_reports_backup_views_use_existing_endpoints():
+    rewards = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
+    reports = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
+    backup = (FRONTEND / "src" / "views" / "BackupView.tsx").read_text()
+
+    assert 'apiGet<Reward[]>("/rewards")' in rewards
+    assert 'apiPost<Reward, RewardCreatePayload>("/rewards"' in rewards
+    assert 'apiPost<RewardPurchase>(`/rewards/${reward.id}/purchase`)' in rewards
+    assert 'apiGet<WeeklyReport>("/reports/weekly")' in reports
+    assert 'apiGet<BackupStatus>("/backup/status")' in backup
+    assert 'href="/api/backup/export.json"' in backup
+    assert 'href="/api/backup/missions.csv"' in backup
+    assert 'href="/api/backup/completions.csv"' in backup

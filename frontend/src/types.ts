@@ -61,6 +61,10 @@ export interface MissionProgressPayload {
   amount: number;
 }
 
+export interface Goal extends Mission {
+  progress_percent: number;
+}
+
 export interface MissionCompletion {
   id: number;
   mission_id: number;
