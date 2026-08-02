@@ -20,11 +20,14 @@ if command -v tsc >/dev/null 2>&1; then
   exit 0
 fi
 
-LOCAL_TSC_BIN="/home/nagi/.hermes/hermes-agent/node_modules/typescript/bin/tsc"
-if [ -f "$LOCAL_TSC_BIN" ] && command -v node >/dev/null 2>&1; then
-  run_tsc node "$LOCAL_TSC_BIN"
-  exit 0
+PREBUILT_DIR="frontend/prebuilt"
+DIST_DIR="frontend/dist"
+
+if [ ! -f "$PREBUILT_DIR/app.js" ]; then
+  echo "TypeScript compiler not found and prebuilt frontend modules are missing." >&2
+  exit 127
 fi
 
-echo "TypeScript compiler not found. Set TSC_BIN, install 'tsc', or provide $LOCAL_TSC_BIN with node." >&2
-exit 127
+rm -f "$DIST_DIR"/*.js "$DIST_DIR"/*.js.map
+cp "$PREBUILT_DIR"/*.js "$DIST_DIR"/
+sed -i '/^\/\/# sourceMappingURL=/d' "$DIST_DIR"/*.js

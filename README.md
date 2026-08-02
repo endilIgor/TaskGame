@@ -26,7 +26,7 @@ Para confirmar que os dados persistem, crie uma missao pela interface, pare os c
 
 O build da imagem instala pacotes Debian a partir de `deb.debian.org`. Em ambientes onde esse host nao resolve por DNS, `docker compose up --build` falha antes de iniciar os containers. Corrija a conectividade ou a resolucao DNS do ambiente e execute o comando novamente.
 
-O script usa `TSC_BIN` quando definido, depois `tsc` no PATH e, neste ambiente, o compilador TypeScript local em `/home/nagi/.hermes/hermes-agent/node_modules/typescript/bin/tsc`. Isso permite executar o build local sem npm ou `package.json`.
+O script usa `TSC_BIN` quando definido, depois `tsc` no PATH. Sem um compilador instalado, ele copia os modulos JavaScript pre-compilados e versionados em `frontend/prebuilt`, portanto funciona em um clone normal sem npm ou `package.json`.
 
 ## Como testar
 
