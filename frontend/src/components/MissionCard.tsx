@@ -22,7 +22,7 @@ export function MissionCard({ mission }: MissionCardProps) {
   const hasProgress = mission.progress_target !== null;
 
   return (
-    <article className="quest-card">
+    <div className="quest-card">
       <div className="quest-card-header">
         <div>
           <span className={`quest-difficulty difficulty-${mission.difficulty}`}>{difficultyLabels[mission.difficulty]}</span>
@@ -36,6 +36,6 @@ export function MissionCard({ mission }: MissionCardProps) {
         {mission.target_date ? <span>Prazo: {mission.target_date}</span> : null}
       </div>
       {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target} label="Progresso da missao" /> : null}
-    </article>
+    </div>
   );
 }

@@ -202,8 +202,31 @@ def test_missions_view_requires_a_positive_long_term_progress_target_before_post
     source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
 
     assert 'if (form.type === "long_term" && (!Number.isInteger(target) || target < 1))' in source
-    assert 'setError("Campanhas precisam de uma meta de progresso positiva.")' in source
+    assert '"Campanhas precisam de uma meta de progresso positiva."' in source
     assert 'required={form.type === "long_term"}' in source
+
+
+def test_missions_view_filters_edits_and_gates_actions_by_backend_rules():
+    source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
+
+    assert "useMemo" in source
+    assert "statusFilter" in source
+    assert "typeFilter" in source
+    assert "visibleMissions" in source
+    assert "eligibleToday = isActive && isStarted(mission) && isScheduledToday(mission)" in source
+    assert 'mission.type === "long_term" && mission.progress_target !== null && mission.progress_current >= mission.progress_target' in source
+    assert 'const canProgress = eligibleToday && mission.type === "long_term"' in source
+    assert 'const canComplete = eligibleToday && (mission.type !== "long_term" || longTermTargetReached)' in source
+    assert "apiPatch<Mission, MissionUpdate>" in source
+    assert "Campanhas concluem automaticamente ao atingir a meta." in source
+
+
+def test_missions_view_completion_gating_matches_backend_schedule_rules():
+    source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
+
+    assert "mission.start_date <= todayIsoDate()" in source
+    assert "mission.repeat_days.includes(todayWeekday())" in source
+    assert "return day === 0 ? 6 : day - 1;" in source
 
 
 def test_rewards_reports_backup_views_use_existing_endpoints():
@@ -227,3 +250,51 @@ def test_rewards_view_surfaces_purchase_history_failures_without_an_import_alias
     assert 'purchases.status === "error"' in source
     assert '<ErrorPanel>{purchases.error}</ErrorPanel>' in source
     assert "RewardPurchase as" not in source
+
+
+def test_reward_purchase_requires_confirmation():
+    source = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
+
+    assert "window.confirm" in source
+    assert 'Comprar "${reward.name}" por ${reward.cost} ouro?' in source
+
+
+def test_badge_tiles_show_condition_and_unlock_date():
+    source = (FRONTEND / "src" / "components" / "BadgeTile.tsx").read_text()
+
+    assert "condition_type" in source
+    assert "earned_at" in source
+    assert "Conquistada em" in source
+    assert "Ainda bloqueada" in source
+
+
+def test_reports_use_non_punitive_failure_copy():
+    source = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
+
+    assert "Pontos de atencao" in source
+    assert "Missoes falhas" not in source
+    assert 'tone="danger"' not in source
+
+
+def test_legacy_manual_frontend_files_are_removed():
+    legacy_sources = [
+        "api.ts",
+        "app.ts",
+        "backup.ts",
+        "badges.ts",
+        "dashboard.ts",
+        "missions.ts",
+        "reports.ts",
+        "rewards.ts",
+    ]
+
+    for filename in legacy_sources:
+        assert not (FRONTEND / "src" / filename).exists()
+    assert not list((FRONTEND / "prebuilt").glob("*.js"))
+
+
+def test_mission_card_is_not_article_inside_article():
+    source = (FRONTEND / "src" / "components" / "MissionCard.tsx").read_text()
+
+    assert '<div className="quest-card">' in source
+    assert '<article className="quest-card">' not in source
