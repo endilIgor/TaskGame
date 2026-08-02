@@ -143,6 +143,14 @@ def test_missions_view_supports_create_complete_progress_and_archive_flows():
     assert '`/missions/${mission.id}/progress`' in source
 
 
+def test_missions_view_requires_a_positive_long_term_progress_target_before_posting():
+    source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
+
+    assert 'if (form.type === "long_term" && (!Number.isInteger(target) || target < 1))' in source
+    assert 'setError("Campanhas precisam de uma meta de progresso positiva.")' in source
+    assert 'required={form.type === "long_term"}' in source
+
+
 def test_rewards_reports_backup_views_use_existing_endpoints():
     rewards = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
     reports = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
@@ -156,3 +164,11 @@ def test_rewards_reports_backup_views_use_existing_endpoints():
     assert 'href="/api/backup/export.json"' in backup
     assert 'href="/api/backup/missions.csv"' in backup
     assert 'href="/api/backup/completions.csv"' in backup
+
+
+def test_rewards_view_surfaces_purchase_history_failures_without_an_import_alias():
+    source = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
+
+    assert 'purchases.status === "error"' in source
+    assert '<ErrorPanel>{purchases.error}</ErrorPanel>' in source
+    assert "RewardPurchase as" not in source

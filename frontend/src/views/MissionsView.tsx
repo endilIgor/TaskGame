@@ -19,6 +19,10 @@ export function MissionsView() {
   async function createMission(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const target = form.progress_target ? Number(form.progress_target) : null;
+    if (form.type === "long_term" && (!Number.isInteger(target) || target < 1)) {
+      setError("Campanhas precisam de uma meta de progresso positiva.");
+      return;
+    }
     const payload: MissionCreatePayload = { title: form.title.trim(), type: form.type, difficulty: form.difficulty, description: form.description.trim() || null, category: form.category.trim() || null, target_date: form.target_date || null, progress_target: target };
     setBusyId("create"); setError(null);
     try { await apiPost<Mission, MissionCreatePayload>("/missions", payload); setForm(initialForm); refresh(); } catch (cause) { setError(cause instanceof Error ? cause.message : "Nao foi possivel criar a missao."); } finally { setBusyId(null); }
@@ -49,7 +53,7 @@ export function MissionsView() {
       <FormField label="Dificuldade"><SelectInput value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value as Difficulty })}><option value="easy">Facil</option><option value="medium">Media</option><option value="hard">Dificil</option><option value="epic">Epica</option></SelectInput></FormField>
       <FormField label="Categoria"><TextInput maxLength={80} value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} /></FormField>
       <FormField label="Data alvo"><TextInput type="date" value={form.target_date} onChange={(event) => setForm({ ...form, target_date: event.target.value })} /></FormField>
-      <FormField label="Meta de progresso"><TextInput type="number" min="1" value={form.progress_target} onChange={(event) => setForm({ ...form, progress_target: event.target.value })} /></FormField>
+      <FormField label="Meta de progresso"><TextInput type="number" min="1" required={form.type === "long_term"} value={form.progress_target} onChange={(event) => setForm({ ...form, progress_target: event.target.value })} /></FormField>
     </div><button className="button primary" disabled={busyId === "create"}>Registrar missao</button></form>
     {error ? <ErrorPanel>{error}</ErrorPanel> : null}
     {missions.status === "loading" ? <LoadingPanel /> : null}
