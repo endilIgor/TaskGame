@@ -216,10 +216,16 @@ export function MissionsView() {
   }
 
   return (
-    <section className="view-page" aria-labelledby="missions-heading">
-      <header><span className="section-kicker">Contratos</span><h1 className="page-heading" id="missions-heading">Missões</h1></header>
+    <section className="view-page missions-page" aria-labelledby="missions-heading">
+      <header className="view-hero"><span className="section-kicker">Contratos</span><h1 className="page-heading" id="missions-heading">Missões</h1><p>Crie, acompanhe e refine seus contratos sem perder o ritmo da guilda.</p></header>
       <form className="panel mission-form" onSubmit={createMission}>
-        <h2 className="panel-heading">Novo contrato</h2>
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Registro</span>
+            <h2 className="panel-heading">Novo contrato</h2>
+          </div>
+          <span className="section-count">+</span>
+        </div>
         <div className="form-grid">
           <FormField label="Título"><TextInput required maxLength={120} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></FormField>
           <FormField label="Descrição"><TextArea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></FormField>
@@ -236,7 +242,13 @@ export function MissionsView() {
         <button className="button primary" disabled={busyId === "create"}>Registrar missão</button>
       </form>
       <section className="panel filters-panel" aria-label="Filtros de missões">
-        <h2 className="panel-heading">Filtros</h2>
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Busca</span>
+            <h2 className="panel-heading">Filtros</h2>
+          </div>
+          {missions.status === "ready" ? <span className="section-count">{visibleMissions.length}</span> : null}
+        </div>
         <div className="form-grid">
           <FormField label="Status"><SelectInput value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}><option value="all">Todos</option><option value="active">Ativas</option><option value="completed">Concluídas</option><option value="archived">Arquivadas</option></SelectInput></FormField>
           <FormField label="Tipo"><SelectInput value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as TypeFilter)}><option value="all">Todos</option><option value="daily">Diárias</option><option value="weekly">Semanais</option><option value="long_term">Campanhas</option></SelectInput></FormField>

@@ -18,17 +18,24 @@ const missionTypeLabels: Record<Mission["type"], string> = {
   long_term: "Campanha",
 };
 
+const missionTypeIcons: Record<Mission["type"], string> = {
+  daily: "✦",
+  weekly: "◇",
+  long_term: "▣",
+};
+
 export function MissionCard({ mission }: MissionCardProps) {
   const hasProgress = mission.progress_target !== null;
 
   return (
     <div className="quest-card">
+      <span className={`quest-accent type-${mission.type}`} aria-hidden="true" />
       <div className="quest-card-header">
         <div>
           <span className={`quest-difficulty difficulty-${mission.difficulty}`}>{difficultyLabels[mission.difficulty]}</span>
           <h3 className="mission-title">{mission.title}</h3>
         </div>
-        <span className="mission-type">{missionTypeLabels[mission.type]}</span>
+        <span className={`mission-type type-${mission.type}`}><span aria-hidden="true">{missionTypeIcons[mission.type]}</span>{missionTypeLabels[mission.type]}</span>
       </div>
       {mission.description ? <p className="quest-description">{mission.description}</p> : null}
       <div className="quest-meta">

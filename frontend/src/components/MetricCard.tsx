@@ -10,7 +10,10 @@ interface MetricCardProps {
 export function MetricCard({ label, value, detail, tone = "arcane" }: MetricCardProps) {
   return (
     <article className={`metric-card metric-card-${tone}`}>
-      <span className="metric-label">{label}</span>
+      <div className="metric-card-header">
+        <span className="metric-label">{label}</span>
+        <span className="metric-orb" aria-hidden="true" />
+      </div>
       <strong className="metric-value">{value}</strong>
       {detail ? <span className="metric-detail">{detail}</span> : null}
     </article>

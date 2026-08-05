@@ -21,6 +21,11 @@ export function DashboardView() {
           <span className="section-kicker">Salão da Guilda</span>
           <h1 id="guild-hall-heading">Nível {player.level}</h1>
           <p>Seu quadro de missões, recompensas e conquistas da jornada.</p>
+          <div className="hero-chip-row" aria-label="Resumo rápido do personagem">
+            <span className="hero-chip">✦ {player.total_xp} XP total</span>
+            <span className="hero-chip gold">◈ {player.gold} ouro</span>
+            <span className="hero-chip">◆ {player.current_streak} dias de sequência</span>
+          </div>
         </div>
         <div className="hero-progress">
           <ProgressBar value={player.xp_into_level} max={player.xp_for_next_level} label="XP para o próximo nível" />

@@ -12,6 +12,16 @@ const navigation = [
   { key: "backup", label: "Arquivo", eyebrow: "Dados" },
 ] as const;
 
+const navigationIcons: Record<ViewKey, string> = {
+  dashboard: "✦",
+  missions: "◇",
+  goals: "▣",
+  badges: "◆",
+  rewards: "◈",
+  reports: "☷",
+  backup: "◌",
+};
+
 interface AppShellProps {
   renderView: (activeView: ViewKey) => ReactNode;
 }
@@ -23,7 +33,10 @@ export function AppShell({ renderView }: AppShellProps) {
   return (
     <div className="app-shell guild-shell" data-liquid-ignore>
       <aside className="sidebar" aria-label="Navegação principal">
-        <div className="brand">TaskGame</div>
+        <div className="brand-block">
+          <div className="brand">TaskGame</div>
+          <p className="brand-tagline">Seu RPG de produtividade</p>
+        </div>
         <nav>
           {navigation.map((item) => (
             <button
@@ -33,8 +46,11 @@ export function AppShell({ renderView }: AppShellProps) {
               aria-current={item.key === activeView ? "page" : undefined}
               onClick={() => setActiveView(item.key)}
             >
-              <span className="nav-eyebrow">{item.eyebrow}</span>
-              <span>{item.label}</span>
+              <span className="nav-icon" aria-hidden="true">{navigationIcons[item.key]}</span>
+              <span className="nav-copy">
+                <span className="nav-eyebrow">{item.eyebrow}</span>
+                <span className="nav-label">{item.label}</span>
+              </span>
             </button>
           ))}
         </nav>
