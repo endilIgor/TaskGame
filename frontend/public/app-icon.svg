@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">TaskGame app icon</title>
+  <desc id="desc">A fantasy productivity shield with a glowing quest star.</desc>
+  <defs>
+    <linearGradient id="bg" x1="18" y1="10" x2="114" y2="122" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1f2a4f"/>
+      <stop offset="0.45" stop-color="#111827"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="36" y1="24" x2="92" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f8d879"/>
+      <stop offset="0.52" stop-color="#d7a928"/>
+      <stop offset="1" stop-color="#8f5f10"/>
+    </linearGradient>
+    <linearGradient id="gem" x1="43" y1="35" x2="84" y2="82" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9fb0ff"/>
+      <stop offset="1" stop-color="#7c8cff"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.486 0 0 0 0 0.549 0 0 0 0 1 0 0 0 0.7 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#bg)"/>
+  <path d="M20 30c16-2 30-8 44-18 14 10 28 16 44 18-1 40-17 67-44 84-27-17-43-44-44-84Z" fill="#070a12" opacity="0.56"/>
+  <path d="M26 32c14-2 26-7 38-16 12 9 24 14 38 16-1 35-15 59-38 74-23-15-37-39-38-74Z" fill="url(#shield)"/>
+  <path d="M35 38c11-2 20-6 29-12 9 6 18 10 29 12-2 27-12 46-29 58-17-12-27-31-29-58Z" fill="#101827" opacity="0.92"/>
+  <path d="M64 32l9 21 23 2-17 15 5 23-20-12-20 12 5-23-17-15 23-2 9-21Z" fill="url(#gem)" filter="url(#glow)"/>
+  <path d="M64 44l4 11 12 1-9 8 3 12-10-6-10 6 3-12-9-8 12-1 4-11Z" fill="#f8d879"/>
+  <path d="M34 33c11-2 21-6 30-13 9 7 19 11 30 13" fill="none" stroke="#fff3b0" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round"/>
+</svg>

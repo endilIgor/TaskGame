@@ -1,4 +1,3 @@
-import { LiquidGlassDecor } from "./components/LiquidGlassDecor";
 import { DashboardView } from "./views/DashboardView";
 import { MissionsView } from "./views/MissionsView";
 import { GoalsView } from "./views/GoalsView";
@@ -23,7 +22,6 @@ const views: Record<ViewKey, () => ReactNode> = {
 export function App() {
   return (
     <div className="app-stage">
-      <LiquidGlassDecor />
       <AppShell renderView={(activeView) => views[activeView]()} />
     </div>
   );

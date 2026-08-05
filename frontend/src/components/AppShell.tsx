@@ -34,8 +34,13 @@ export function AppShell({ renderView }: AppShellProps) {
     <div className="app-shell guild-shell" data-liquid-ignore>
       <aside className="sidebar" aria-label="Navegação principal">
         <div className="brand-block">
-          <div className="brand">TaskGame</div>
-          <p className="brand-tagline">Seu RPG de produtividade</p>
+          <div className="brand-lockup">
+            <img className="brand-mark" src="/app-icon.svg" alt="" aria-hidden="true" />
+            <div>
+              <div className="brand">TaskGame</div>
+              <p className="brand-tagline">Seu RPG de produtividade</p>
+            </div>
+          </div>
         </div>
         <nav>
           {navigation.map((item) => (
