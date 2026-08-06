@@ -72,7 +72,7 @@ export function ReportsView() {
       </section>
       <div className="analysis-grid">
         <section className="panel">
-          <h2 className="panel-heading">Categorias em destaque</h2>
+          <h2 className="panel-heading">Skills em destaque</h2>
           {report.data.top_categories.length ? (
             <div className="history-list">
               {report.data.top_categories.map((category) => (
@@ -82,7 +82,7 @@ export function ReportsView() {
                 </div>
               ))}
             </div>
-          ) : <EmptyState>Sem conclusões por categoria.</EmptyState>}
+          ) : <EmptyState>Sem conclusões por skill.</EmptyState>}
         </section>
         <section className="panel">
           <h2 className="panel-heading">Objetivos concluídos</h2>

@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -27,6 +28,13 @@ def _repeat_days_value(repeat_days: list[int] | None) -> str | None:
     if repeat_days is None:
         return None
     return ",".join(str(day) for day in repeat_days)
+
+
+def _mission_values(values: dict[str, Any]) -> dict[str, Any]:
+    skill = values.pop("skill", None)
+    if skill is not None:
+        values["category"] = skill
+    return values
 
 
 def _get_mission(
@@ -136,7 +144,7 @@ def list_missions(session: Session, include_archived: bool = False) -> list[Miss
 
 
 def create_mission(session: Session, data: MissionCreate) -> Mission:
-    values = data.model_dump()
+    values = _mission_values(data.model_dump())
     values["repeat_days"] = _repeat_days_value(values["repeat_days"])
     mission = Mission(**values)
     session.add(mission)
@@ -150,7 +158,7 @@ def update_mission(session: Session, mission_id: int, data: MissionUpdate) -> Mi
     if mission is None:
         return None
 
-    values = data.model_dump(exclude_unset=True)
+    values = _mission_values(data.model_dump(exclude_unset=True))
     mission_type = values.get("type", mission.type)
     start_date = values.get("start_date", mission.start_date)
     target_date = values.get("target_date", mission.target_date)

@@ -43,6 +43,23 @@ def test_create_list_and_complete_mission(client: TestClient):
     assert dashboard.json()["player"]["gold"] == 12
 
 
+def test_create_mission_with_skill_replaces_category(client: TestClient):
+    response = client.post(
+        "/api/missions",
+        json={
+            "title": "Ler livro técnico",
+            "type": "daily",
+            "difficulty": "easy",
+            "skill": "knowledge",
+        },
+    )
+
+    assert response.status_code == 201
+    mission = response.json()
+    assert mission["skill"] == "knowledge"
+    assert mission["category"] == "knowledge"
+
+
 def test_long_term_progress_completion(client: TestClient):
     response = client.post(
         "/api/missions",

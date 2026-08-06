@@ -2,6 +2,7 @@ export type ViewKey = "dashboard" | "missions" | "goals" | "badges" | "rewards" 
 export type MissionType = "daily" | "weekly" | "long_term";
 export type Difficulty = "easy" | "medium" | "hard" | "epic";
 export type MissionStatus = "active" | "completed" | "archived";
+export type SkillType = "knowledge" | "strength" | "money" | "health" | "creativity" | "social";
 
 export interface PlayerSummary {
   total_xp: number;
@@ -20,6 +21,7 @@ export interface Mission {
   type: MissionType;
   difficulty: Difficulty;
   category: string | null;
+  skill: string | null;
   status: MissionStatus;
   start_date: string;
   target_date: string | null;
@@ -36,6 +38,7 @@ export interface MissionCreatePayload {
   difficulty?: Difficulty;
   description?: string | null;
   category?: string | null;
+  skill?: SkillType | null;
   start_date?: string;
   target_date?: string | null;
   progress_current?: number;
@@ -51,6 +54,7 @@ export interface MissionUpdate {
   type?: MissionType;
   difficulty?: Difficulty;
   category?: string | null;
+  skill?: SkillType | null;
   start_date?: string;
   target_date?: string | null;
   repeat_days?: number[] | null;

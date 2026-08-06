@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from backend.app.models import Difficulty, MissionStatus, MissionType
+from backend.app.models import Difficulty, MissionStatus, MissionType, SkillType
 
 
 def minimum_campaign_target_date(start_date: date) -> date:
@@ -15,6 +15,7 @@ class MissionCreate(BaseModel):
     type: MissionType
     difficulty: Difficulty = Difficulty.EASY
     category: str | None = Field(default=None, max_length=80)
+    skill: SkillType | None = None
     start_date: date = Field(default_factory=date.today)
     target_date: date | None = None
     repeat_days: list[int] | None = None
@@ -45,6 +46,7 @@ class MissionUpdate(BaseModel):
     type: MissionType | None = None
     difficulty: Difficulty | None = None
     category: str | None = Field(default=None, max_length=80)
+    skill: SkillType | None = None
     start_date: date | None = None
     target_date: date | None = None
     repeat_days: list[int] | None = None
@@ -71,6 +73,7 @@ class MissionRead(BaseModel):
     type: MissionType
     difficulty: Difficulty
     category: str | None
+    skill: str | None
     status: MissionStatus
     start_date: date
     target_date: date | None

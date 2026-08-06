@@ -207,6 +207,19 @@ def test_missions_view_supports_create_complete_progress_and_archive_flows():
     assert '`/missions/${mission.id}/progress`' in source
 
 
+def test_missions_view_uses_skill_selector_instead_of_category_input():
+    source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
+    card_source = (FRONTEND / "src" / "components" / "MissionCard.tsx").read_text()
+
+    assert "skill" in source
+    assert "Conhecimento" in source
+    assert "Força" in source
+    assert "Dinheiro" in source
+    assert "mission.skill" in card_source
+    assert "Categoria" not in source
+    assert "mission.category" not in card_source
+
+
 def test_missions_view_requires_a_positive_long_term_progress_target_before_posting():
     source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
 
@@ -240,6 +253,13 @@ def test_missions_view_completion_gating_matches_backend_schedule_rules():
     assert "mission.start_date <= todayIsoDate()" in source
     assert "mission.repeat_days.includes(todayWeekday())" in source
     assert "return day === 0 ? 6 : day - 1;" in source
+
+
+def test_missions_view_uses_local_dates_instead_of_utc_iso_dates():
+    source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
+
+    assert "formatLocalIsoDate" in source
+    assert ".toISOString().slice(0, 10)" not in source
 
 
 def test_rewards_reports_backup_views_use_existing_endpoints():

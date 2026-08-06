@@ -24,6 +24,15 @@ const missionTypeIcons: Record<Mission["type"], string> = {
   long_term: "▣",
 };
 
+const skillLabels: Record<string, string> = {
+  knowledge: "Conhecimento",
+  strength: "Força",
+  money: "Dinheiro",
+  health: "Saúde",
+  creativity: "Criatividade",
+  social: "Social",
+};
+
 export function MissionCard({ mission }: MissionCardProps) {
   const hasProgress = mission.progress_target !== null;
 
@@ -39,10 +48,10 @@ export function MissionCard({ mission }: MissionCardProps) {
       </div>
       {mission.description ? <p className="quest-description">{mission.description}</p> : null}
       <div className="quest-meta">
-        <span>{mission.category || "Sem categoria"}</span>
+        <span>{skillLabels[mission.skill ?? ""] ?? "Sem skill"}</span>
         {mission.target_date ? <span>Prazo: {mission.target_date}</span> : null}
       </div>
-      {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target} label="Progresso da missão" /> : null}
+      {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target ?? 1} label="Progresso da missão" /> : null}
     </div>
   );
 }

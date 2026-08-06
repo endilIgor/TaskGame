@@ -22,6 +22,15 @@ class Difficulty(StrEnum):
     EPIC = "epic"
 
 
+class SkillType(StrEnum):
+    KNOWLEDGE = "knowledge"
+    STRENGTH = "strength"
+    MONEY = "money"
+    HEALTH = "health"
+    CREATIVITY = "creativity"
+    SOCIAL = "social"
+
+
 class MissionStatus(StrEnum):
     ACTIVE = "active"
     COMPLETED = "completed"
@@ -68,6 +77,10 @@ class Mission(Base):
     )
 
     completions: Mapped[list["MissionCompletion"]] = relationship(back_populates="mission")
+
+    @property
+    def skill(self) -> str | None:
+        return self.category
 
 
 class MissionCompletion(Base):
