@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.app.database import get_session
 from backend.app.schemas import (
     MissionCompletionRead,
+    MissionComplete,
     MissionCreate,
     MissionProgressUpdate,
     MissionRead,
@@ -24,9 +27,10 @@ def _mission_or_404(mission):
 @router.get("", response_model=list[MissionRead])
 def list_missions(
     include_archived: bool = False,
+    today: date | None = None,
     session: Session = Depends(get_session),
 ):
-    return mission_service.list_missions(session, include_archived)
+    return mission_service.list_missions(session, include_archived, today)
 
 
 @router.post("", response_model=MissionRead, status_code=status.HTTP_201_CREATED)
@@ -81,10 +85,15 @@ def advance_mission_progress(
 @router.post("/{mission_id}/complete", response_model=MissionCompletionRead)
 def complete_mission(
     mission_id: int,
+    data: MissionComplete | None = Body(default=None),
     session: Session = Depends(get_session),
 ):
     try:
-        completion = mission_service.complete_mission(session, mission_id)
+        completion = mission_service.complete_mission(
+            session,
+            mission_id,
+            data.completed_on if data else None,
+        )
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     return _mission_or_404(completion)

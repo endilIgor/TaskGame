@@ -1,4 +1,4 @@
-export type ViewKey = "dashboard" | "missions" | "goals" | "badges" | "rewards" | "reports" | "backup";
+export type ViewKey = "dashboard" | "missions" | "journal" | "goals" | "badges" | "rewards" | "reports" | "backup";
 export type MissionType = "daily" | "weekly" | "long_term";
 export type Difficulty = "easy" | "medium" | "hard" | "epic";
 export type MissionStatus = "active" | "completed" | "archived";
@@ -28,6 +28,10 @@ export interface Mission {
   repeat_days: number[] | null;
   progress_current: number;
   progress_target: number | null;
+  completion_count: number;
+  total_xp_awarded: number;
+  total_gold_awarded: number;
+  completed_today: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -77,6 +81,14 @@ export interface MissionCompletion {
   gold_awarded: number;
   streak_bonus_percent: number;
   note: string | null;
+  mission_completion_count: number;
+  mission_total_xp_awarded: number;
+  mission_total_gold_awarded: number;
+  unlocked_badges: BadgeStatus[];
+}
+
+export interface MissionCompletePayload {
+  completed_on: string;
 }
 
 export interface BadgeStatus {
@@ -154,6 +166,7 @@ export interface BackupExport {
   player_stats: unknown[];
   badges: unknown[];
   earned_badges: unknown[];
+  journal_entries: unknown[];
   rewards: Reward[];
   reward_purchases: unknown[];
   weekly_snapshots: unknown[];
@@ -168,3 +181,26 @@ export interface DashboardData {
 }
 
 export type Dashboard = DashboardData;
+
+export interface JournalEntrySummary {
+  id: number;
+  title: string;
+  entry_date: string;
+  excerpt: string;
+  mood: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JournalEntry extends JournalEntrySummary {
+  content: string;
+}
+
+export interface JournalEntryCreatePayload {
+  title?: string | null;
+  entry_date: string;
+  content: string;
+  mood?: string | null;
+}
+
+export type JournalEntryUpdate = Partial<JournalEntryCreatePayload>;

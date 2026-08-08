@@ -5,6 +5,7 @@ import type { ViewKey } from "../types";
 const navigation = [
   { key: "dashboard", label: "Salão", eyebrow: "Personagem" },
   { key: "missions", label: "Missões", eyebrow: "Contratos" },
+  { key: "journal", label: "Diário", eyebrow: "Aventuras" },
   { key: "goals", label: "Campanhas", eyebrow: "Objetivos" },
   { key: "badges", label: "Medalhas", eyebrow: "Conquistas" },
   { key: "rewards", label: "Loja", eyebrow: "Ouro" },
@@ -15,6 +16,7 @@ const navigation = [
 const navigationIcons: Record<ViewKey, string> = {
   dashboard: "✦",
   missions: "◇",
+  journal: "✎",
   goals: "▣",
   badges: "◆",
   rewards: "◈",
@@ -37,8 +39,8 @@ export function AppShell({ renderView }: AppShellProps) {
           <div className="brand-lockup">
             <img className="brand-mark" src="/app-icon.svg" alt="" aria-hidden="true" />
             <div>
-              <div className="brand">TaskGame</div>
-              <p className="brand-tagline">Seu RPG de produtividade</p>
+              <div className="brand">NagiGame</div>
+              <p className="brand-tagline">Seu RPG moderno de produtividade</p>
             </div>
           </div>
         </div>

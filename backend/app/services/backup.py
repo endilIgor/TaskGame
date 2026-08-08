@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from backend.app.models import (
     Badge,
     EarnedBadge,
+    JournalEntry,
     Mission,
     MissionCompletion,
     PlayerStats,
@@ -46,6 +47,7 @@ def export_all_json(session: Session) -> dict[str, object]:
         "player_stats": _model_rows(session, PlayerStats),
         "badges": _model_rows(session, Badge),
         "earned_badges": _model_rows(session, EarnedBadge),
+        "journal_entries": _model_rows(session, JournalEntry),
         "rewards": _model_rows(session, Reward),
         "reward_purchases": _model_rows(session, RewardPurchase),
         "weekly_snapshots": _model_rows(session, WeeklySnapshot),

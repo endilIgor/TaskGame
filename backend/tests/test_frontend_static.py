@@ -29,6 +29,26 @@ def test_frontend_dist_is_react_shell_served_after_api_routes(client: TestClient
     assert client.get(f"/assets/{stylesheet_match.group(1)}").status_code == 200
 
 
+def test_frontend_static_responses_disable_cache_for_rebuilt_assets(client: TestClient):
+    response = client.get("/")
+    script_match = re.search(
+        r'<script type="module" crossorigin src="/assets/([^\"]+\.js)"></script>',
+        response.text,
+    )
+
+    assert script_match
+    assert response.headers["cache-control"] == "no-store, no-cache, must-revalidate"
+    assert response.headers["pragma"] == "no-cache"
+    assert response.headers["expires"] == "0"
+
+    asset_response = client.get(f"/assets/{script_match.group(1)}")
+
+    assert asset_response.status_code == 200
+    assert asset_response.headers["cache-control"] == "no-store, no-cache, must-revalidate"
+    assert asset_response.headers["pragma"] == "no-cache"
+    assert asset_response.headers["expires"] == "0"
+
+
 def test_vite_development_index_remains_a_source_shell():
     source_index = (FRONTEND / "index.html").read_text()
 
@@ -178,6 +198,23 @@ def test_rpg_theme_css_contains_centered_premium_tokens():
     assert "@media (prefers-reduced-motion: reduce)" in css
 
 
+def test_select_controls_use_custom_app_themed_dropdown_instead_of_browser_menu():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+    source = (FRONTEND / "src" / "components" / "FormControls.tsx").read_text()
+
+    assert "return <select" not in source
+    assert "custom-select-trigger" in source
+    assert "custom-select-menu" in source
+    assert "role=\"listbox\"" in source
+    assert "role=\"option\"" in source
+    assert ".custom-select-trigger" in css
+    assert ".custom-select-menu" in css
+    assert ".custom-select-option.selected" in css
+    assert ".custom-select.open { z-index: 80; }" in css
+    assert "white-space: nowrap" in css
+    assert ".custom-select-menu { position: static; margin-top: 8px; }" in css
+
+
 def test_dashboard_view_uses_live_dashboard_endpoint():
     source = (FRONTEND / "src" / "views" / "DashboardView.tsx").read_text()
 
@@ -195,16 +232,25 @@ def test_progress_bar_clamps_aria_value_to_safe_maximum():
     assert "aria-valuenow={clampedValue}" in source
 
 
-def test_missions_view_supports_create_complete_progress_and_archive_flows():
+def test_missions_view_supports_create_complete_delete_and_deadline_flows():
     source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
 
-    assert 'apiGet<Mission[]>("/missions?include_archived=true")' in source
+    assert 'apiGet<Mission[]>(`/missions?today=${todayIsoDate()}`)' in source
     assert 'apiPost<Mission, MissionCreatePayload>("/missions"' in source
+    assert "start_date: todayIsoDate()" in source
     assert '`/missions/${mission.id}/complete`' in source
-    assert '`/missions/${mission.id}/archive`' in source
-    assert '`/missions/${mission.id}/restore`' in source
+    assert '`/missions/${mission.id}/archive`' not in source
+    assert '`/missions/${mission.id}/restore`' not in source
+    assert "Arquivar" not in source
+    assert "Restaurar" not in source
+    assert "Editar" not in source
     assert 'apiDelete(`/missions/${mission.id}`)' in source
-    assert '`/missions/${mission.id}/progress`' in source
+    assert "dailyTimers" not in source
+    assert "timer_minutes" not in source
+    assert "renderMissionDeadline" in source
+    assert "Ciclo de" in source
+    assert "24h" in source
+    assert "7 dias" in source
 
 
 def test_missions_view_uses_skill_selector_instead_of_category_input():
@@ -225,11 +271,11 @@ def test_missions_view_requires_a_positive_long_term_progress_target_before_post
 
     assert 'if (form.type === "long_term" && (!Number.isInteger(target) || target < 1))' in source
     assert '"Campanhas precisam de uma meta de progresso positiva."' in source
-    assert '"Campanhas precisam de uma data alvo de pelo menos 1 mês."' in source
+    assert '"Campanhas precisam de uma data alvo a partir de hoje."' in source
     assert 'required={form.type === "long_term"}' in source
     assert "campaignMinDate()" in source
     assert 'form.type === "long_term" ?' in source
-    assert 'editForm.type === "long_term" ?' in source
+    assert 'editForm.type === "long_term" ?' not in source
 
 
 def test_missions_view_filters_edits_and_gates_actions_by_backend_rules():
@@ -241,16 +287,15 @@ def test_missions_view_filters_edits_and_gates_actions_by_backend_rules():
     assert "visibleMissions" in source
     assert "eligibleToday = isActive && isStarted(mission) && isScheduledToday(mission)" in source
     assert 'mission.type === "long_term" && mission.progress_target !== null && mission.progress_current >= mission.progress_target' in source
-    assert 'const canProgress = eligibleToday && mission.type === "long_term"' in source
-    assert 'const canComplete = eligibleToday && (mission.type !== "long_term" || longTermTargetReached)' in source
-    assert "apiPatch<Mission, MissionUpdate>" in source
-    assert "Campanhas concluem automaticamente ao atingir a meta." in source
+    assert 'const canComplete = eligibleToday && !mission.completed_today && mission.type !== "long_term"' in source
+    assert "apiPatch<Mission, MissionUpdate>" not in source
+    assert "Missões lendárias concluem automaticamente ao atingir a meta." not in source
 
 
 def test_missions_view_completion_gating_matches_backend_schedule_rules():
     source = (FRONTEND / "src" / "views" / "MissionsView.tsx").read_text()
 
-    assert "mission.start_date <= todayIsoDate()" in source
+    assert "mission.start_date <= todayIsoDate() || mission.start_date === tomorrowIsoDate()" in source
     assert "mission.repeat_days.includes(todayWeekday())" in source
     assert "return day === 0 ? 6 : day - 1;" in source
 
@@ -260,6 +305,19 @@ def test_missions_view_uses_local_dates_instead_of_utc_iso_dates():
 
     assert "formatLocalIsoDate" in source
     assert ".toISOString().slice(0, 10)" not in source
+
+
+def test_calendar_controls_show_brazilian_dates_and_open_native_picker():
+    source = (FRONTEND / "src" / "components" / "FormControls.tsx").read_text()
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert "formatDateDisplay" in source
+    assert "`${day}/${month}/${year}`" in source
+    assert "formatMonthDisplay" in source
+    assert "`${month}/${year}`" in source
+    assert "showPicker" in source
+    assert "calendar-picker-button" in source
+    assert "opacity: 0" not in css[css.index(".calendar-native-input"):css.index(".calendar-picker-button")]
 
 
 def test_rewards_reports_backup_views_use_existing_endpoints():
@@ -363,5 +421,5 @@ def test_legacy_manual_frontend_files_are_removed():
 def test_mission_card_is_not_article_inside_article():
     source = (FRONTEND / "src" / "components" / "MissionCard.tsx").read_text()
 
-    assert '<div className="quest-card">' in source
+    assert '<div className={`quest-card${mission.completed_today ? " completed-today" : ""}`}>' in source
     assert '<article className="quest-card">' not in source

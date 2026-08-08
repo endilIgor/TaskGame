@@ -1,12 +1,13 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from collections.abc import Sequence
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from backend.app.models import Mission, MissionCompletion, MissionStatus, MissionType, PlayerStats
-from backend.app.schemas import MissionCreate, MissionProgressUpdate, MissionUpdate, minimum_campaign_target_date
+from backend.app.models import Badge, EarnedBadge, Mission, MissionCompletion, MissionStatus, MissionType, PlayerStats
+from backend.app.schemas import BadgeStatusRead, MissionCreate, MissionProgressUpdate, MissionUpdate
 from backend.app.services.badges import evaluate_badges
 from backend.app.services.game_rules import apply_xp_bonus, base_rewards, streak_bonus_percent
 from backend.app.services.streaks import is_daily_scheduled, recalculate_daily_streak
@@ -58,9 +59,8 @@ def _validate_long_term_target(
         return
     if progress_target is None:
         raise ValueError("progress_target is required for long_term missions")
-    minimum_target = minimum_campaign_target_date(start_date)
-    if target_date is None or target_date < minimum_target:
-        raise ValueError("target_date must be at least 30 days after start_date for long_term missions")
+    if target_date is None or target_date < start_date:
+        raise ValueError("target_date must be on or after start_date for long_term missions")
 
 
 def _completion_key(mission: Mission, completion_date: date) -> str:
@@ -72,12 +72,91 @@ def _completion_key(mission: Mission, completion_date: date) -> str:
     return "long_term"
 
 
+def _badge_status_read(badge: Badge, earned_badge: EarnedBadge) -> BadgeStatusRead:
+    return BadgeStatusRead(
+        id=badge.id,
+        code=badge.code,
+        name=badge.name,
+        description=badge.description,
+        condition_type=badge.condition_type,
+        threshold=badge.threshold,
+        earned=True,
+        earned_at=earned_badge.earned_at,
+    )
+
+
+def _mission_reward_totals(session: Session, mission_id: int) -> tuple[int, int, int]:
+    completion_count, total_xp, total_gold = session.execute(
+        select(
+            func.count(MissionCompletion.id),
+            func.coalesce(func.sum(MissionCompletion.xp_awarded), 0),
+            func.coalesce(func.sum(MissionCompletion.gold_awarded), 0),
+        ).where(MissionCompletion.mission_id == mission_id)
+    ).one()
+    return int(completion_count or 0), int(total_xp or 0), int(total_gold or 0)
+
+
+def _attach_completion_summary(
+    session: Session,
+    completion: MissionCompletion,
+    unlocked_badges: Sequence[EarnedBadge | BadgeStatusRead] | None = None,
+) -> MissionCompletion:
+    count, total_xp, total_gold = _mission_reward_totals(session, completion.mission_id)
+    setattr(completion, "mission_completion_count", count)
+    setattr(completion, "mission_total_xp_awarded", total_xp)
+    setattr(completion, "mission_total_gold_awarded", total_gold)
+    badge_reads = [
+        earned_badge
+        if isinstance(earned_badge, BadgeStatusRead)
+        else _badge_status_read(earned_badge.badge, earned_badge)
+        for earned_badge in (unlocked_badges or [])
+    ]
+    setattr(completion, "unlocked_badges", badge_reads)
+    return completion
+
+
+def _attach_mission_summaries(session: Session, missions: list[Mission], today: date | None = None) -> list[Mission]:
+    if not missions:
+        return missions
+    today_key = (today or date.today()).isoformat()
+    mission_ids = [mission.id for mission in missions]
+    rows = session.execute(
+        select(
+            MissionCompletion.mission_id,
+            func.count(MissionCompletion.id),
+            func.coalesce(func.sum(MissionCompletion.xp_awarded), 0),
+            func.coalesce(func.sum(MissionCompletion.gold_awarded), 0),
+        )
+        .where(MissionCompletion.mission_id.in_(mission_ids))
+        .group_by(MissionCompletion.mission_id)
+    )
+    totals = {
+        mission_id: (int(count or 0), int(total_xp or 0), int(total_gold or 0))
+        for mission_id, count, total_xp, total_gold in rows
+    }
+    completed_today_ids = set(
+        session.scalars(
+            select(MissionCompletion.mission_id)
+            .where(MissionCompletion.mission_id.in_(mission_ids))
+            .where(MissionCompletion.completion_key == today_key)
+        )
+    )
+    for mission in missions:
+        count, total_xp, total_gold = totals.get(mission.id, (0, 0, 0))
+        setattr(mission, "completion_count", count)
+        setattr(mission, "total_xp_awarded", total_xp)
+        setattr(mission, "total_gold_awarded", total_gold)
+        setattr(mission, "completed_today", mission.id in completed_today_ids)
+    return missions
+
+
 def _validate_completion_eligibility(mission: Mission, completion_date: date) -> None:
     if completion_date > date.today():
         raise ValueError("Missions cannot be completed in the future")
     if mission.status != MissionStatus.ACTIVE:
         raise ValueError("Only active missions can be completed")
-    if mission.start_date > completion_date:
+    server_local_skew = mission.start_date - completion_date == timedelta(days=1) and completion_date == date.today() - timedelta(days=1)
+    if mission.start_date > completion_date and not server_local_skew:
         raise ValueError("Mission has not started")
     if mission.type == MissionType.DAILY and not is_daily_scheduled(
         mission, completion_date
@@ -132,15 +211,17 @@ def _award_completion(
 
     if mission.type == MissionType.LONG_TERM:
         mission.status = MissionStatus.COMPLETED
-    evaluate_badges(session)
+    unlocked_badges = evaluate_badges(session)
+    session.flush()
+    _attach_completion_summary(session, completion, unlocked_badges)
     return completion
 
 
-def list_missions(session: Session, include_archived: bool = False) -> list[Mission]:
+def list_missions(session: Session, include_archived: bool = False, today: date | None = None) -> list[Mission]:
     statement = select(Mission).where(Mission.deleted_at.is_(None)).order_by(Mission.id)
     if not include_archived:
         statement = statement.where(Mission.status != MissionStatus.ARCHIVED)
-    return list(session.scalars(statement))
+    return _attach_mission_summaries(session, list(session.scalars(statement)), today)
 
 
 def create_mission(session: Session, data: MissionCreate) -> Mission:
@@ -258,6 +339,7 @@ def complete_mission(
     completion_key = _completion_key(mission, completion_date)
     try:
         completion = _award_completion(session, mission, completion_date)
+        unlocked_badges = getattr(completion, "unlocked_badges", [])
         session.commit()
     except IntegrityError:
         session.rollback()
@@ -267,7 +349,7 @@ def complete_mission(
             .where(MissionCompletion.completion_key == completion_key)
         )
         if existing_completion is not None:
-            return existing_completion
+            return _attach_completion_summary(session, existing_completion)
         raise
     session.refresh(completion)
-    return completion
+    return _attach_completion_summary(session, completion, unlocked_badges)

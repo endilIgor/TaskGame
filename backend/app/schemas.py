@@ -1,12 +1,10 @@
-from datetime import date, datetime, timedelta
+from __future__ import annotations
+
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from backend.app.models import Difficulty, MissionStatus, MissionType, SkillType
-
-
-def minimum_campaign_target_date(start_date: date) -> date:
-    return start_date + timedelta(days=30)
 
 
 class MissionCreate(BaseModel):
@@ -31,12 +29,11 @@ class MissionCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_long_term_progress(self) -> "MissionCreate":
-        if self.type == MissionType.LONG_TERM and self.progress_target is None:
-            raise ValueError("progress_target is required for long_term missions")
         if self.type == MissionType.LONG_TERM:
-            minimum_target = minimum_campaign_target_date(self.start_date)
-            if self.target_date is None or self.target_date < minimum_target:
-                raise ValueError("target_date must be at least 30 days after start_date for long_term missions")
+            if self.progress_target is None:
+                raise ValueError("progress_target is required for long_term missions")
+            if self.target_date is None or self.target_date < self.start_date:
+                raise ValueError("target_date must be on or after start_date for long_term missions")
         return self
 
 
@@ -64,6 +61,10 @@ class MissionProgressUpdate(BaseModel):
     amount: int = Field(gt=0)
 
 
+class MissionComplete(BaseModel):
+    completed_on: date | None = None
+
+
 class MissionRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,6 +81,10 @@ class MissionRead(BaseModel):
     repeat_days: list[int] | None
     progress_current: int
     progress_target: int | None
+    completion_count: int = 0
+    total_xp_awarded: int = 0
+    total_gold_awarded: int = 0
+    completed_today: bool = False
     created_at: datetime
     updated_at: datetime
 
@@ -101,6 +106,48 @@ class MissionCompletionRead(BaseModel):
     gold_awarded: int
     streak_bonus_percent: int
     note: str | None
+    mission_completion_count: int = 0
+    mission_total_xp_awarded: int = 0
+    mission_total_gold_awarded: int = 0
+    unlocked_badges: list[BadgeStatusRead] = Field(default_factory=list)
+
+
+class JournalEntryCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=140)
+    entry_date: date = Field(default_factory=date.today)
+    content: str = Field(min_length=1)
+    mood: str | None = Field(default=None, max_length=80)
+
+
+class JournalEntryUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=140)
+    entry_date: date | None = None
+    content: str | None = Field(default=None, min_length=1)
+    mood: str | None = Field(default=None, max_length=80)
+
+
+class JournalEntryRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    entry_date: date
+    content: str
+    mood: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class JournalEntrySummaryRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    entry_date: date
+    excerpt: str
+    mood: str | None
+    created_at: datetime
+    updated_at: datetime
 
 
 class BadgeStatusRead(BaseModel):

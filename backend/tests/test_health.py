@@ -10,7 +10,7 @@ def test_health_endpoint_returns_ok():
     response = client.get("/api/health")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "app": "TaskGame"}
+    assert response.json() == {"status": "ok", "app": "NagiGame"}
 
 
 def test_cors_rejects_loopback_ip_origin(monkeypatch):

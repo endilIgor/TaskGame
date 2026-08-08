@@ -186,7 +186,7 @@ def test_delete_mission_removes_it_from_lists(client: TestClient):
     assert len(backup["mission_completions"]) == 1
 
 
-def test_create_long_term_requires_target_date_at_least_one_month(client: TestClient):
+def test_create_long_term_requires_target_date_on_or_after_start_date(client: TestClient):
     base_payload = {
         "title": "Escrever livro",
         "type": "long_term",
@@ -195,19 +195,19 @@ def test_create_long_term_requires_target_date_at_least_one_month(client: TestCl
     }
 
     missing_target = client.post("/api/missions", json=base_payload)
-    too_soon = client.post(
+    before_start = client.post(
         "/api/missions",
-        json={**base_payload, "target_date": campaign_target_date(29)},
+        json={**base_payload, "target_date": campaign_target_date(-1)},
     )
     valid = client.post(
         "/api/missions",
-        json={**base_payload, "target_date": campaign_target_date(30)},
+        json={**base_payload, "target_date": campaign_target_date(0)},
     )
 
     assert missing_target.status_code == 422
-    assert too_soon.status_code == 422
+    assert before_start.status_code == 422
     assert valid.status_code == 201
-    assert valid.json()["target_date"] == campaign_target_date(30)
+    assert valid.json()["target_date"] == campaign_target_date(0)
 
 
 def test_public_completion_does_not_accept_date_override(client: TestClient):
@@ -292,6 +292,77 @@ def test_same_day_completion_returns_existing_completion_without_double_award(cl
     player = client.get("/api/dashboard").json()["player"]
     assert player["total_xp"] == 10
     assert player["gold"] == 5
+
+
+def test_complete_mission_accepts_local_completed_on_body_and_returns_rewards_summary(client: TestClient):
+    yesterday = date.today() - timedelta(days=1)
+    mission = client.post(
+        "/api/missions",
+        json={
+            "title": "Ler 3 páginas",
+            "type": "daily",
+            "difficulty": "easy",
+            "repeat_days": [yesterday.weekday()],
+            "start_date": yesterday.isoformat(),
+        },
+    ).json()
+
+    response = client.post(
+        f"/api/missions/{mission['id']}/complete",
+        json={"completed_on": yesterday.isoformat()},
+    )
+
+    assert response.status_code == 200
+    completion = response.json()
+    assert completion["completed_at"].startswith(yesterday.isoformat())
+    assert completion["xp_awarded"] == 10
+    assert completion["gold_awarded"] == 5
+    assert completion["mission_completion_count"] == 1
+    assert completion["mission_total_xp_awarded"] == 10
+    assert completion["mission_total_gold_awarded"] == 5
+    report = client.get(f"/api/reports/weekly/{yesterday.isoformat()}").json()
+    matching_day = next(day for day in report["daily_activity"] if day["date"] == yesterday.isoformat())
+    assert matching_day["completions"] == 1
+
+
+def test_mission_list_includes_completion_counts_and_today_lock(client: TestClient):
+    mission = client.post(
+        "/api/missions",
+        json={"title": "Beber agua", "type": "daily", "difficulty": "easy"},
+    ).json()
+
+    client.post(f"/api/missions/{mission['id']}/complete")
+    listed = client.get("/api/missions?include_archived=true").json()[0]
+
+    assert listed["completion_count"] == 1
+    assert listed["total_xp_awarded"] == 10
+    assert listed["total_gold_awarded"] == 5
+    assert listed["completed_today"] is True
+
+
+def test_mission_list_uses_local_today_query_for_completion_lock(client: TestClient):
+    yesterday = date.today() - timedelta(days=1)
+    mission = client.post(
+        "/api/missions",
+        json={
+            "title": "Treino local",
+            "type": "daily",
+            "difficulty": "easy",
+            "start_date": yesterday.isoformat(),
+            "repeat_days": [yesterday.weekday()],
+        },
+    ).json()
+
+    client.post(
+        f"/api/missions/{mission['id']}/complete",
+        json={"completed_on": yesterday.isoformat()},
+    )
+
+    local_list = client.get(f"/api/missions?today={yesterday.isoformat()}").json()[0]
+    server_list = client.get("/api/missions").json()[0]
+
+    assert local_list["completed_today"] is True
+    assert server_list["completed_today"] is False
 
 
 def test_mission_completion_has_unique_mission_completion_key_constraint():

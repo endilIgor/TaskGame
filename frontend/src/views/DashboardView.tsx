@@ -20,7 +20,7 @@ export function DashboardView() {
         <div className="hero-copy">
           <span className="section-kicker">Salão da Guilda</span>
           <h1 id="guild-hall-heading">Nível {player.level}</h1>
-          <p>Seu quadro de missões, recompensas e conquistas da jornada.</p>
+          <p>NagiGame organiza missões, pontos, ouro e conquistas em um painel de aventura diária.</p>
           <div className="hero-chip-row" aria-label="Resumo rápido do personagem">
             <span className="hero-chip">✦ {player.total_xp} XP total</span>
             <span className="hero-chip gold">◈ {player.gold} ouro</span>

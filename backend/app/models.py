@@ -186,3 +186,19 @@ class WeeklySnapshot(Base):
     gold_gained: Mapped[int] = mapped_column(Integer, default=0)
     best_day: Mapped[str | None] = mapped_column(String(16))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class JournalEntry(Base):
+    __tablename__ = "journal_entries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(140))
+    entry_date: Mapped[date] = mapped_column(Date, default=date.today)
+    content: Mapped[str] = mapped_column(Text)
+    mood: Mapped[str | None] = mapped_column(String(80))
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )

@@ -15,7 +15,7 @@ const difficultyLabels: Record<Mission["difficulty"], string> = {
 const missionTypeLabels: Record<Mission["type"], string> = {
   daily: "Diária",
   weekly: "Semanal",
-  long_term: "Campanha",
+  long_term: "Lendária",
 };
 
 const missionTypeIcons: Record<Mission["type"], string> = {
@@ -33,11 +33,21 @@ const skillLabels: Record<string, string> = {
   social: "Social",
 };
 
+const skillIcons: Record<string, string> = {
+  knowledge: "✦",
+  strength: "▲",
+  money: "◈",
+  health: "✚",
+  creativity: "✧",
+  social: "◌",
+};
+
 export function MissionCard({ mission }: MissionCardProps) {
   const hasProgress = mission.progress_target !== null;
+  const skill = mission.skill ?? "";
 
   return (
-    <div className="quest-card">
+    <div className={`quest-card${mission.completed_today ? " completed-today" : ""}`}>
       <span className={`quest-accent type-${mission.type}`} aria-hidden="true" />
       <div className="quest-card-header">
         <div>
@@ -48,10 +58,15 @@ export function MissionCard({ mission }: MissionCardProps) {
       </div>
       {mission.description ? <p className="quest-description">{mission.description}</p> : null}
       <div className="quest-meta">
-        <span>{skillLabels[mission.skill ?? ""] ?? "Sem skill"}</span>
+        <span className="skill-pill"><span aria-hidden="true">{skillIcons[skill] ?? "◇"}</span>{skillLabels[skill] ?? "Sem skill"}</span>
         {mission.target_date ? <span>Prazo: {mission.target_date}</span> : null}
       </div>
       {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target ?? 1} label="Progresso da missão" /> : null}
+      <div className="mission-reward-strip" aria-label="Resumo de recompensas da missão">
+        <span><strong>{mission.completion_count}</strong> vezes concluída</span>
+        <span><strong>{mission.total_xp_awarded}</strong> XP nesta missão</span>
+        <span><strong>{mission.total_gold_awarded}</strong> ouro nesta missão</span>
+      </div>
     </div>
   );
 }

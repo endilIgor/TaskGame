@@ -28,6 +28,7 @@ def test_json_backup_exports_created_mission(client: TestClient):
         "player_stats",
         "badges",
         "earned_badges",
+        "journal_entries",
         "rewards",
         "reward_purchases",
         "weekly_snapshots",

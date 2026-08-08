@@ -14,9 +14,10 @@ def repeat_days(mission: Mission) -> set[int]:
 
 
 def is_daily_scheduled(mission: Mission, scheduled_on: date) -> bool:
+    server_local_skew = mission.start_date - scheduled_on == timedelta(days=1) and scheduled_on == date.today() - timedelta(days=1)
     return (
         mission.type == MissionType.DAILY
-        and mission.start_date <= scheduled_on
+        and (mission.start_date <= scheduled_on or server_local_skew)
         and scheduled_on.weekday() in repeat_days(mission)
     )
 

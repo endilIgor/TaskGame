@@ -18,8 +18,8 @@ export function BadgeTile({ badge }: { badge: BadgeStatus }) {
   const condition = conditionLabels[badge.condition_type] ?? badge.condition_type;
 
   return (
-    <article className={`badge-tile ${badge.earned ? "earned" : "locked"}`}>
-      <span className="badge-emblem" aria-hidden="true">{badge.earned ? "*" : "?"}</span>
+    <article className={`badge-tile achievement-tile ${badge.earned ? "earned" : "locked"}`}>
+      <span className="badge-emblem" aria-hidden="true">{badge.earned ? "◆" : "◇"}</span>
       <h2 className="badge-name">{badge.name}</h2>
       <p className="quest-description">{badge.description}</p>
       <span className="badge-status">{condition}: {badge.threshold}</span>

@@ -1,5 +1,6 @@
 import { DashboardView } from "./views/DashboardView";
 import { MissionsView } from "./views/MissionsView";
+import { JournalView } from "./views/JournalView";
 import { GoalsView } from "./views/GoalsView";
 import { BadgesView } from "./views/BadgesView";
 import { RewardsView } from "./views/RewardsView";
@@ -12,6 +13,7 @@ import type { ViewKey } from "./types";
 const views: Record<ViewKey, () => ReactNode> = {
   dashboard: () => <DashboardView />,
   missions: () => <MissionsView />,
+  journal: () => <JournalView />,
   goals: () => <GoalsView />,
   badges: () => <BadgesView />,
   rewards: () => <RewardsView />,
