@@ -75,7 +75,6 @@ def test_react_app_routes_all_taskgame_views():
         "BadgesView",
         "RewardsView",
         "ReportsView",
-        "BackupView",
     ]
 
     for view in expected_views:
@@ -172,8 +171,9 @@ def test_react_api_client_wraps_existing_backend_endpoints():
 def test_react_app_uses_stateful_shell_navigation():
     source = (FRONTEND / "src" / "components" / "AppShell.tsx").read_text()
 
-    for view in ("dashboard", "missions", "goals", "badges", "rewards", "reports", "backup"):
+    for view in ("dashboard", "missions", "goals", "badges", "rewards", "reports"):
         assert view in source
+    assert '{ key: "backup", label: "Arquivo", eyebrow: "Dados" }' not in source
     assert "useState<ViewKey>" in source
     assert "setActiveView" in source
 
@@ -320,10 +320,9 @@ def test_calendar_controls_show_brazilian_dates_and_open_native_picker():
     assert "opacity: 0" not in css[css.index(".calendar-native-input"):css.index(".calendar-picker-button")]
 
 
-def test_rewards_reports_backup_views_use_existing_endpoints():
+def test_rewards_and_reports_views_use_existing_endpoints():
     rewards = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
     reports = (FRONTEND / "src" / "views" / "ReportsView.tsx").read_text()
-    backup = (FRONTEND / "src" / "views" / "BackupView.tsx").read_text()
 
     assert 'apiGet<Reward[]>("/rewards")' in rewards
     assert 'apiPost<Reward, RewardCreatePayload>("/rewards"' in rewards
@@ -331,10 +330,6 @@ def test_rewards_reports_backup_views_use_existing_endpoints():
     assert 'apiGet<ReportPeriod>(endpoint)' in reports
     assert '"/reports/weekly"' in reports
     assert '"/reports/monthly"' in reports
-    assert 'apiGet<BackupStatus>("/backup/status")' in backup
-    assert 'href="/api/backup/export.json"' in backup
-    assert 'href="/api/backup/missions.csv"' in backup
-    assert 'href="/api/backup/completions.csv"' in backup
 
 
 def test_rewards_view_surfaces_purchase_history_failures_without_an_import_alias():

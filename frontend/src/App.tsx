@@ -5,7 +5,6 @@ import { GoalsView } from "./views/GoalsView";
 import { BadgesView } from "./views/BadgesView";
 import { RewardsView } from "./views/RewardsView";
 import { ReportsView } from "./views/ReportsView";
-import { BackupView } from "./views/BackupView";
 import { AppShell } from "./components/AppShell";
 import type { ReactNode } from "react";
 import type { ViewKey } from "./types";
@@ -18,7 +17,6 @@ const views: Record<ViewKey, () => ReactNode> = {
   badges: () => <BadgesView />,
   rewards: () => <RewardsView />,
   reports: () => <ReportsView />,
-  backup: () => <BackupView />,
 };
 
 export function App() {

@@ -330,7 +330,7 @@ body {
     linear-gradient(135deg, rgba(18, 23, 40, 0.98), rgba(12, 15, 25, 0.88));
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 }
-.view-hero::after, .mission-form::after, .journal-composer::after {
+.view-hero::after, .mission-form::after, .journal-composer::after, .reward-form::after {
   content: "";
   position: absolute;
   top: 0;
@@ -367,7 +367,7 @@ body {
 }
 .panel-heading { font-size: 1.35rem; letter-spacing: -0.04em; }
 
-.mission-form, .journal-composer {
+.mission-form, .journal-composer, .reward-form {
   position: relative;
   overflow: visible;
   gap: 22px;
@@ -377,7 +377,7 @@ body {
     linear-gradient(145deg, rgba(19, 23, 38, 0.98), rgba(8, 10, 17, 0.94));
   border-color: rgba(255, 203, 92, 0.22);
 }
-.quest-composer-grid, .journal-composer-grid {
+.quest-composer-grid, .journal-composer-grid, .reward-composer-grid {
   position: relative;
   z-index: 1;
   display: grid;
@@ -393,6 +393,7 @@ body {
     "description description progressTarget";
 }
 .journal-composer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "title title" "date mood"; }
+.reward-composer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "rewardName rewardCost" "rewardDescription rewardDescription"; }
 .field-title { grid-area: title; }
 .field-type { grid-area: type; }
 .field-description { grid-area: description; }
@@ -402,6 +403,9 @@ body {
 .field-progress-target { grid-area: progressTarget; }
 .field-date { grid-area: date; }
 .field-mood { grid-area: mood; }
+.field-reward-name { grid-area: rewardName; }
+.field-reward-cost { grid-area: rewardCost; }
+.field-reward-description { grid-area: rewardDescription; background: rgba(5, 7, 13, 0.62); }
 .form-field {
   position: relative;
   display: grid;
@@ -483,6 +487,7 @@ input, select, textarea {
 .custom-select.disabled { opacity: 0.6; }
 textarea { min-height: 148px; resize: none; line-height: 1.55; }
 .field-description textarea { min-height: 196px; }
+.field-reward-description textarea { min-height: 156px; }
 .field-journal-text textarea { min-height: 240px; }
 .calendar-display-control {
   position: relative;
@@ -575,7 +580,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .completed-column { border-color: rgba(95, 211, 154, 0.24); }
 
 .journal-layout { grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr); }
-.journal-composer .section-heading, .mission-form .section-heading { position: relative; z-index: 1; }
+.journal-composer .section-heading, .mission-form .section-heading, .reward-form .section-heading { position: relative; z-index: 1; }
 .journal-index .section-heading { align-items: center; }
 .journal-post-card {
   padding: 16px;
@@ -598,6 +603,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   .app-stage { padding: 12px; }
   .content { padding: 26px; }
   .quest-composer-grid { grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr); grid-template-areas: "title title" "description description" "type difficulty" "skill skill" "targetDate progressTarget"; }
+  .reward-composer-grid { grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr); }
   .filters-panel, .mission-board, .dashboard-grid, .journal-layout { grid-template-columns: 1fr; }
   .mission-row { grid-template-columns: 1fr; }
   .mission-actions { grid-template-columns: minmax(180px, 0.45fr) minmax(0, 1fr); align-items: start; }
@@ -631,8 +637,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   .nav-label { font-size: 0.86rem; }
   .content { padding: 22px 16px; }.hero-panel { grid-template-columns: 1fr; gap: 22px; padding: 22px; }.hero-copy h1, .page-heading { font-size: 2rem; }
   .metric-grid, .today-grid, .report-metrics { grid-template-columns: 1fr; }.metric-card { min-height: 106px; }.dashboard-grid, .analysis-grid, .history-controls, .journal-layout, .mission-reward-strip { grid-template-columns: 1fr; }.weekly-stats { grid-template-columns: 1fr; }.quest-card-header, .quest-meta { align-items: start; flex-direction: column; gap: 8px; }.mission-row { grid-template-columns: 1fr; }.mission-actions { min-width: 0; }.row-actions { justify-content: flex-start; }.history-row { flex-direction: column; }.reward-popover { right: 16px; top: 16px; }
-  .quest-composer-grid, .journal-composer-grid { grid-template-columns: 1fr; grid-template-areas: none; }
-  .field-title, .field-type, .field-description, .field-difficulty, .field-skill, .field-target-date, .field-progress-target, .field-date, .field-mood { grid-area: auto; }
+  .quest-composer-grid, .journal-composer-grid, .reward-composer-grid { grid-template-columns: 1fr; grid-template-areas: none; }
+  .field-title, .field-type, .field-description, .field-difficulty, .field-skill, .field-target-date, .field-progress-target, .field-date, .field-mood, .field-reward-name, .field-reward-cost, .field-reward-description { grid-area: auto; }
   .composer-footer { align-items: stretch; flex-direction: column; }
   .mission-board { grid-template-columns: 1fr; }
   .filters-panel { grid-template-columns: 1fr; }

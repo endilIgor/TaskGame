@@ -55,13 +55,19 @@ export function RewardsView() {
     <section className="view-page" aria-labelledby="rewards-heading">
       <header><span className="section-kicker">Ouro</span><h1 className="page-heading" id="rewards-heading">Loja</h1></header>
       <form className="panel reward-form" onSubmit={create}>
-        <h2 className="panel-heading">Nova recompensa</h2>
-        <div className="form-grid">
-          <FormField label="Nome"><TextInput required maxLength={120} value={name} onChange={(event) => setName(event.target.value)} /></FormField>
-          <FormField label="Descrição"><TextArea maxLength={500} value={description} onChange={(event) => setDescription(event.target.value)} /></FormField>
-          <FormField label="Custo em ouro"><TextInput required type="number" min="1" value={cost} onChange={(event) => setCost(event.target.value)} /></FormField>
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Prateleira da guilda</span>
+            <h2 className="panel-heading">Nova recompensa</h2>
+          </div>
+          <span className="section-count">◈</span>
         </div>
-        <button className="button primary" disabled={busy === "create"}>Adicionar recompensa</button>
+        <div className="reward-composer-grid">
+          <FormField className="field-reward-name" label="Nome" hint="O prêmio que você quer desbloquear."><TextInput required maxLength={120} placeholder="Ex: Noite de cinema" value={name} onChange={(event) => setName(event.target.value)} /></FormField>
+          <FormField className="field-reward-description" label="Descrição" hint="Detalhe a regra ou contexto da recompensa."><TextArea maxLength={500} placeholder="Ex: Assistir um filme sem culpa depois das missões do dia." value={description} onChange={(event) => setDescription(event.target.value)} /></FormField>
+          <FormField className="field-reward-cost" label="Custo em ouro" hint="Valor mínimo: 1 ouro."><TextInput required type="number" min="1" placeholder="50" value={cost} onChange={(event) => setCost(event.target.value)} /></FormField>
+        </div>
+        <div className="composer-footer"><span>Use a loja para trocar ouro por recompensas reais.</span><button className="button primary" disabled={busy === "create"}>Adicionar recompensa</button></div>
       </form>
       {error ? <ErrorPanel>{error}</ErrorPanel> : null}
       {rewards.status === "loading" ? <LoadingPanel /> : null}

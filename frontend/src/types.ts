@@ -1,4 +1,4 @@
-export type ViewKey = "dashboard" | "missions" | "journal" | "goals" | "badges" | "rewards" | "reports" | "backup";
+export type ViewKey = "dashboard" | "missions" | "journal" | "goals" | "badges" | "rewards" | "reports";
 export type MissionType = "daily" | "weekly" | "long_term";
 export type Difficulty = "easy" | "medium" | "hard" | "epic";
 export type MissionStatus = "active" | "completed" | "archived";
@@ -154,23 +154,6 @@ export interface ReportPeriod {
 }
 
 export type WeeklyReport = ReportPeriod;
-
-export interface BackupStatus {
-  last_mysql_dump_at: string | null;
-  last_mysql_dump_filename: string | null;
-}
-
-export interface BackupExport {
-  missions: Mission[];
-  mission_completions: unknown[];
-  player_stats: unknown[];
-  badges: unknown[];
-  earned_badges: unknown[];
-  journal_entries: unknown[];
-  rewards: Reward[];
-  reward_purchases: unknown[];
-  weekly_snapshots: unknown[];
-}
 
 export interface DashboardData {
   player: PlayerSummary;

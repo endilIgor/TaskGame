@@ -10,7 +10,6 @@ const navigation = [
   { key: "badges", label: "Medalhas", eyebrow: "Conquistas" },
   { key: "rewards", label: "Loja", eyebrow: "Ouro" },
   { key: "reports", label: "Crônica", eyebrow: "Relatórios" },
-  { key: "backup", label: "Arquivo", eyebrow: "Dados" },
 ] as const;
 
 const navigationIcons: Record<ViewKey, string> = {
@@ -21,7 +20,6 @@ const navigationIcons: Record<ViewKey, string> = {
   badges: "◆",
   rewards: "◈",
   reports: "☷",
-  backup: "◌",
 };
 
 interface AppShellProps {
