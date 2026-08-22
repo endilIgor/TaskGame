@@ -1,4 +1,5 @@
 import type { BadgeStatus } from "../types";
+import { GameIcon } from "./GameIcon";
 
 const conditionLabels: Record<string, string> = {
   streak: "Sequência",
@@ -19,7 +20,7 @@ export function BadgeTile({ badge }: { badge: BadgeStatus }) {
 
   return (
     <article className={`badge-tile achievement-tile ${badge.earned ? "earned" : "locked"}`}>
-      <span className="badge-emblem" aria-hidden="true">{badge.earned ? "◆" : "◇"}</span>
+      <span className="badge-emblem" aria-hidden="true"><GameIcon variant={badge.earned ? "medal" : "ring"} /></span>
       <h2 className="badge-name">{badge.name}</h2>
       <p className="quest-description">{badge.description}</p>
       <span className="badge-status">{condition}: {badge.threshold}</span>

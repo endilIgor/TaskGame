@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { GameIcon } from "./GameIcon";
+import type { GameIconVariant } from "./GameIcon";
 import type { ViewKey } from "../types";
 
 const navigation = [
@@ -12,14 +14,14 @@ const navigation = [
   { key: "reports", label: "Crônica", eyebrow: "Relatórios" },
 ] as const;
 
-const navigationIcons: Record<ViewKey, string> = {
-  dashboard: "✦",
-  missions: "◇",
-  journal: "✎",
-  goals: "▣",
-  badges: "◆",
-  rewards: "◈",
-  reports: "☷",
+const navigationIcons: Record<ViewKey, GameIconVariant> = {
+  dashboard: "shield",
+  missions: "scroll",
+  journal: "book",
+  goals: "flag",
+  badges: "medal",
+  rewards: "coin",
+  reports: "chart",
 };
 
 interface AppShellProps {
@@ -51,7 +53,7 @@ export function AppShell({ renderView }: AppShellProps) {
               aria-current={item.key === activeView ? "page" : undefined}
               onClick={() => setActiveView(item.key)}
             >
-              <span className="nav-icon" aria-hidden="true">{navigationIcons[item.key]}</span>
+              <span className={`nav-icon nav-icon-${item.key}`} aria-hidden="true"><GameIcon variant={navigationIcons[item.key]} /></span>
               <span className="nav-copy">
                 <span className="nav-eyebrow">{item.eyebrow}</span>
                 <span className="nav-label">{item.label}</span>

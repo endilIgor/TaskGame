@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiDelete, apiGet, apiPost } from "../api/client";
 import { DateInput, FormField, SelectInput, TextArea, TextInput } from "../components/FormControls";
+import { GameIcon } from "../components/GameIcon";
 import { MissionCard } from "../components/MissionCard";
 import { EmptyState, ErrorPanel, LoadingPanel } from "../components/StatePanels";
 import { useAsyncData } from "../hooks/useAsyncData";
@@ -234,7 +235,7 @@ export function MissionsView() {
             <span className="section-kicker">Criador de quest</span>
             <h2 className="panel-heading">Novo contrato da guilda</h2>
           </div>
-          <span className="section-count">✦</span>
+          <span className="section-count"><GameIcon variant="spark" /></span>
         </div>
         <div className="quest-composer-grid">
           <FormField className="field-title" label="Nome da missão" hint="Curto, claro e com cara de objetivo."><TextInput required maxLength={120} placeholder="Ex: Ler 3 páginas" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></FormField>
@@ -271,7 +272,7 @@ export function MissionsView() {
           <span className="section-kicker">Missão concluída</span>
           <h2>{rewardToast.title}</h2>
           <div className="reward-popover-prizes"><span>+{rewardToast.xp} XP</span><span>+{rewardToast.gold} ouro</span></div>
-          {rewardToast.badges.length ? <div className="achievement-pop"><strong>Nova conquista!</strong>{rewardToast.badges.map((badge) => <span key={badge.code}>◆ {badge.name}</span>)}</div> : null}
+          {rewardToast.badges.length ? <div className="achievement-pop"><strong>Nova conquista!</strong>{rewardToast.badges.map((badge) => <span className="achievement-pop-row" key={badge.code}><GameIcon variant="medal" />{badge.name}</span>)}</div> : null}
         </div>
       ) : null}
       {missions.status === "loading" ? <LoadingPanel /> : null}

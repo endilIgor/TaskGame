@@ -1,5 +1,6 @@
 import { apiGet } from "../api/client";
 import { BadgeTile } from "../components/BadgeTile";
+import { GameIcon } from "../components/GameIcon";
 import { EmptyState, ErrorPanel, LoadingPanel } from "../components/StatePanels";
 import { useAsyncData } from "../hooks/useAsyncData";
 import type { BadgeStatus } from "../types";
@@ -20,7 +21,7 @@ export function BadgesView() {
         <p>Metas desbloqueadas ganham destaque dourado; as bloqueadas mostram o próximo feito a perseguir.</p>
       </header>
       <div className="achievement-summary panel">
-        <span className="badge-emblem" aria-hidden="true">◆</span>
+        <span className="badge-emblem" aria-hidden="true"><GameIcon variant="medal" /></span>
         <div>
           <span className="section-kicker">Progresso</span>
           <h2 className="panel-heading">{earned}/{badges.data.length} conquistas liberadas</h2>

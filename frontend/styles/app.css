@@ -123,6 +123,31 @@ button { cursor: pointer; }
   border-radius: 16px;
 }
 .nav-icon { display: grid; width: 30px; height: 30px; place-items: center; color: var(--color-gold); background: rgba(242, 189, 75, 0.08); border: 1px solid rgba(242, 189, 75, 0.14); border-radius: 12px; font-size: 0.86rem; }
+.game-icon { position: relative; display: inline-grid; width: 1em; height: 1em; flex: 0 0 1em; place-items: center; color: currentColor; line-height: 1; }
+.game-icon::before, .game-icon::after { content: ""; grid-area: 1 / 1; display: block; box-sizing: border-box; }
+.game-icon-shield::before { width: 0.82em; height: 0.9em; background: currentColor; clip-path: polygon(50% 4%, 88% 18%, 82% 62%, 50% 96%, 18% 62%, 12% 18%); }
+.game-icon-shield::after { width: 0.26em; height: 0.5em; border-right: 0.1em solid rgba(5, 6, 10, 0.58); border-bottom: 0.1em solid rgba(5, 6, 10, 0.58); transform: translateY(-0.02em) rotate(40deg); }
+.game-icon-scroll::before { width: 0.76em; height: 0.72em; background: currentColor; border-radius: 0.15em; box-shadow: -0.14em -0.05em 0 -0.02em currentColor, 0.14em 0.05em 0 -0.02em currentColor; }
+.game-icon-scroll::after { width: 0.42em; height: 0.34em; border-top: 0.08em solid rgba(5, 6, 10, 0.58); border-bottom: 0.08em solid rgba(5, 6, 10, 0.58); }
+.game-icon-book::before { width: 0.84em; height: 0.76em; background: currentColor; border-radius: 0.08em 0.18em 0.18em 0.08em; }
+.game-icon-book::after { width: 0.1em; height: 0.72em; justify-self: center; background: rgba(5, 6, 10, 0.58); border-radius: 999px; box-shadow: -0.28em 0 0 -0.02em rgba(5, 6, 10, 0.4); }
+.game-icon-flag::before { width: 0.12em; height: 0.88em; justify-self: start; margin-left: 0.18em; background: currentColor; border-radius: 999px; }
+.game-icon-flag::after { width: 0.58em; height: 0.44em; align-self: start; justify-self: end; margin-top: 0.11em; background: currentColor; border-radius: 0.08em 0.18em 0.18em 0.08em; clip-path: polygon(0 0, 100% 0, 82% 50%, 100% 100%, 0 100%); }
+.game-icon-medal::before { width: 0.78em; height: 0.78em; align-self: end; background: currentColor; border-radius: 50%; }
+.game-icon-medal::after { width: 0.52em; height: 0.48em; align-self: start; background: currentColor; clip-path: polygon(8% 0, 42% 0, 52% 36%, 62% 0, 96% 0, 70% 62%, 34% 62%); }
+.game-icon-chart::before { width: 0.84em; height: 0.72em; border-left: 0.11em solid currentColor; border-bottom: 0.11em solid currentColor; border-radius: 0 0 0 0.08em; }
+.game-icon-chart::after { width: 0.15em; height: 0.64em; align-self: end; background: currentColor; border-radius: 999px 999px 0 0; box-shadow: -0.24em 0.24em 0 currentColor, 0.24em -0.16em 0 currentColor; transform: translateY(-0.05em); }
+.game-icon-spark::before { width: 0.88em; height: 0.88em; background: currentColor; clip-path: polygon(50% 0, 60% 35%, 96% 35%, 66% 56%, 78% 94%, 50% 70%, 22% 94%, 34% 56%, 4% 35%, 40% 35%); }
+.game-icon-diamond::before, .game-icon-coin::before { width: 0.76em; height: 0.76em; background: currentColor; transform: rotate(45deg); border-radius: 0.12em; }
+.game-icon-square::before { width: 0.72em; height: 0.72em; border: 0.16em solid currentColor; border-radius: 0.14em; }
+.game-icon-coin::before { width: 0.82em; height: 0.82em; background: transparent; border: 0.16em solid currentColor; border-radius: 50%; transform: none; }
+.game-icon-coin::after { width: 0.28em; height: 0.28em; background: currentColor; border-radius: 50%; }
+.game-icon-triangle::before { width: 0.86em; height: 0.8em; background: currentColor; clip-path: polygon(50% 8%, 94% 88%, 6% 88%); }
+.game-icon-cross::before, .game-icon-cross::after { width: 0.82em; height: 0.18em; background: currentColor; border-radius: 999px; }
+.game-icon-cross::after { transform: rotate(90deg); }
+.game-icon-ring::before { width: 0.78em; height: 0.78em; border: 0.15em solid currentColor; border-radius: 50%; }
+.game-icon-calendar::before { width: 0.82em; height: 0.76em; border: 0.13em solid currentColor; border-radius: 0.14em; }
+.game-icon-calendar::after { align-self: start; width: 0.82em; height: 0.24em; margin-top: 0.12em; background: currentColor; border-radius: 0.12em 0.12em 0 0; }
 .nav-copy { display: grid; min-width: 0; gap: 1px; }
 .nav-eyebrow, .section-kicker { color: var(--color-gold); font-size: 0.69rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .nav-eyebrow { color: inherit; opacity: 0.62; }
@@ -204,7 +229,7 @@ button { cursor: pointer; }
 .quest-card-header, .quest-meta { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
 .quest-card-header h3 { margin: 5px 0 0; }
 .mission-title { overflow-wrap: anywhere; font-size: 1.05rem; line-height: 1.2; letter-spacing: -0.02em; }
-.quest-difficulty, .mission-type { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; color: var(--color-muted); background: rgba(164, 173, 189, 0.09); border: 1px solid rgba(164, 173, 189, 0.18); border-radius: 999px; font-size: 0.7rem; font-weight: 800; }
+.quest-difficulty, .mission-type { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; color: var(--color-muted); background: rgba(164, 173, 189, 0.09); border: 1px solid rgba(164, 173, 189, 0.18); border-radius: 999px; font-size: 0.7rem; font-weight: 800; line-height: 1; }
 .difficulty-easy { color: var(--color-success); background: rgba(74, 222, 128, 0.1); border-color: rgba(74, 222, 128, 0.24); }.difficulty-medium { color: var(--color-arcane); background: rgba(124, 140, 255, 0.1); border-color: rgba(124, 140, 255, 0.24); }.difficulty-hard { color: #f59e0b; background: rgba(245, 158, 11, 0.11); border-color: rgba(245, 158, 11, 0.26); }.difficulty-epic { color: var(--color-gold); background: rgba(242, 189, 75, 0.11); border-color: rgba(242, 189, 75, 0.28); }
 .mission-type.type-daily { color: var(--color-arcane); border-color: rgba(124, 140, 255, 0.24); }
 .mission-type.type-weekly { color: var(--color-purple); border-color: rgba(167, 139, 250, 0.24); }
@@ -233,7 +258,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, .button:focus
 .mission-column { align-content: start; }
 .completed-column { border-color: rgba(74, 222, 128, 0.18); background: linear-gradient(180deg, rgba(74, 222, 128, 0.055), rgba(17, 24, 39, 0.82)); }
 .completed-today { border-color: rgba(74, 222, 128, 0.28); box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-.skill-pill { display: inline-flex; align-items: center; gap: 7px; color: var(--color-text); }
+.skill-pill { display: inline-flex; align-items: center; gap: 7px; color: var(--color-text); line-height: 1.15; }
 .mission-reward-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .mission-reward-strip span { padding: 8px 10px; color: var(--color-muted); background: rgba(5, 6, 10, 0.42); border: 1px solid rgba(164, 173, 189, 0.12); border-radius: 12px; font-size: 0.74rem; }
 .mission-reward-strip strong { color: var(--color-gold); font-variant-numeric: tabular-nums; }
@@ -552,8 +577,12 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   text-shadow: none;
 }
 
-.filters-panel { grid-template-columns: minmax(230px, 0.4fr) minmax(0, 1fr); align-items: end; }
-.filters-panel .form-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+.filters-panel { grid-template-columns: minmax(210px, 0.34fr) minmax(0, 1fr); align-items: stretch; gap: 16px; }
+.filters-panel .section-heading { align-items: center; min-height: 100%; padding: 14px; background: rgba(5, 7, 13, 0.44); border: 1px solid rgba(255, 255, 255, 0.075); border-radius: 18px; }
+.filters-panel .section-heading > div { display: grid; gap: 3px; }
+.filters-panel .section-count { align-self: center; }
+.filters-panel .form-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); align-items: stretch; gap: 14px; }
+.filters-panel .form-field { min-height: 100%; }
 .mission-board { grid-template-columns: minmax(0, 1.12fr) minmax(340px, 0.88fr); align-items: start; }
 .mission-column { min-height: 300px; }
 .mission-row {

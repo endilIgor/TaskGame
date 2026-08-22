@@ -1,4 +1,5 @@
 import { apiGet } from "../api/client";
+import { GameIcon } from "../components/GameIcon";
 import { MetricCard } from "../components/MetricCard";
 import { MissionCard } from "../components/MissionCard";
 import { ProgressBar } from "../components/ProgressBar";
@@ -22,9 +23,9 @@ export function DashboardView() {
           <h1 id="guild-hall-heading">Nível {player.level}</h1>
           <p>NagiGame organiza missões, pontos, ouro e conquistas em um painel de aventura diária.</p>
           <div className="hero-chip-row" aria-label="Resumo rápido do personagem">
-            <span className="hero-chip">✦ {player.total_xp} XP total</span>
-            <span className="hero-chip gold">◈ {player.gold} ouro</span>
-            <span className="hero-chip">◆ {player.current_streak} dias de sequência</span>
+            <span className="hero-chip"><GameIcon variant="spark" />{player.total_xp} XP total</span>
+            <span className="hero-chip gold"><GameIcon variant="coin" />{player.gold} ouro</span>
+            <span className="hero-chip"><GameIcon variant="medal" />{player.current_streak} dias de sequência</span>
           </div>
         </div>
         <div className="hero-progress">
@@ -93,7 +94,7 @@ export function DashboardView() {
           <h2 id="badge-heading">Medalha recente</h2>
           {recentBadge ? (
             <div className="badge-card">
-              <span className="badge-emblem" aria-hidden="true">{recentBadge.earned ? "*" : "+"}</span>
+              <span className="badge-emblem" aria-hidden="true"><GameIcon variant={recentBadge.earned ? "medal" : "ring"} /></span>
               <h3 className="badge-name">{recentBadge.name}</h3>
               <p>{recentBadge.description}</p>
               <span className="badge-status">{recentBadge.earned ? "Conquistada" : "Em progresso"}</span>

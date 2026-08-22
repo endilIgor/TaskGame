@@ -1,4 +1,6 @@
 import type { Mission } from "../types";
+import { GameIcon } from "./GameIcon";
+import type { GameIconVariant } from "./GameIcon";
 import { ProgressBar } from "./ProgressBar";
 
 interface MissionCardProps {
@@ -18,10 +20,10 @@ const missionTypeLabels: Record<Mission["type"], string> = {
   long_term: "Lendária",
 };
 
-const missionTypeIcons: Record<Mission["type"], string> = {
-  daily: "✦",
-  weekly: "◇",
-  long_term: "▣",
+const missionTypeIcons: Record<Mission["type"], GameIconVariant> = {
+  daily: "spark",
+  weekly: "scroll",
+  long_term: "flag",
 };
 
 const skillLabels: Record<string, string> = {
@@ -33,13 +35,13 @@ const skillLabels: Record<string, string> = {
   social: "Social",
 };
 
-const skillIcons: Record<string, string> = {
-  knowledge: "✦",
-  strength: "▲",
-  money: "◈",
-  health: "✚",
-  creativity: "✧",
-  social: "◌",
+const skillIcons: Record<string, GameIconVariant> = {
+  knowledge: "spark",
+  strength: "triangle",
+  money: "coin",
+  health: "cross",
+  creativity: "diamond",
+  social: "ring",
 };
 
 export function MissionCard({ mission }: MissionCardProps) {
@@ -54,11 +56,11 @@ export function MissionCard({ mission }: MissionCardProps) {
           <span className={`quest-difficulty difficulty-${mission.difficulty}`}>{difficultyLabels[mission.difficulty]}</span>
           <h3 className="mission-title">{mission.title}</h3>
         </div>
-        <span className={`mission-type type-${mission.type}`}><span aria-hidden="true">{missionTypeIcons[mission.type]}</span>{missionTypeLabels[mission.type]}</span>
+        <span className={`mission-type type-${mission.type}`}><GameIcon variant={missionTypeIcons[mission.type]} />{missionTypeLabels[mission.type]}</span>
       </div>
       {mission.description ? <p className="quest-description">{mission.description}</p> : null}
       <div className="quest-meta">
-        <span className="skill-pill"><span aria-hidden="true">{skillIcons[skill] ?? "◇"}</span>{skillLabels[skill] ?? "Sem skill"}</span>
+        <span className="skill-pill"><GameIcon variant={skillIcons[skill] ?? "spark"} />{skillLabels[skill] ?? "Sem skill"}</span>
         {mission.target_date ? <span>Prazo: {mission.target_date}</span> : null}
       </div>
       {hasProgress ? <ProgressBar value={mission.progress_current} max={mission.progress_target ?? 1} label="Progresso da missão" /> : null}

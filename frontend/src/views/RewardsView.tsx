@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { apiGet, apiPost } from "../api/client";
 import { FormField, TextArea, TextInput } from "../components/FormControls";
+import { GameIcon } from "../components/GameIcon";
 import { RewardCard } from "../components/RewardCard";
 import { EmptyState, ErrorPanel, LoadingPanel } from "../components/StatePanels";
 import { useAsyncData } from "../hooks/useAsyncData";
@@ -60,7 +61,7 @@ export function RewardsView() {
             <span className="section-kicker">Prateleira da guilda</span>
             <h2 className="panel-heading">Nova recompensa</h2>
           </div>
-          <span className="section-count">◈</span>
+          <span className="section-count"><GameIcon variant="coin" /></span>
         </div>
         <div className="reward-composer-grid">
           <FormField className="field-reward-name" label="Nome" hint="O prêmio que você quer desbloquear."><TextInput required maxLength={120} placeholder="Ex: Noite de cinema" value={name} onChange={(event) => setName(event.target.value)} /></FormField>

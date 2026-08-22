@@ -1,5 +1,6 @@
 import { Children, isValidElement, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { InputHTMLAttributes, OptionHTMLAttributes, ReactElement, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { GameIcon } from "./GameIcon";
 
 interface FieldProps {
   label: string;
@@ -51,7 +52,7 @@ export function DateInput({ value, onChange, required, min, max, "aria-label": a
   return (
     <span className="calendar-display-control">
       <span className={`calendar-display-value${value ? "" : " placeholder"}`}>{formatDateDisplay(value)}</span>
-      <button className="calendar-picker-button" type="button" aria-label={ariaLabel ?? "Abrir calendário"} onClick={openPicker}>▣</button>
+      <button className="calendar-picker-button" type="button" aria-label={ariaLabel ?? "Abrir calendário"} onClick={openPicker}><GameIcon variant="calendar" /></button>
       <input ref={inputRef} className="calendar-native-input" type="date" lang="pt-BR" tabIndex={-1} required={required} min={min} max={max} value={value} aria-hidden="true" onChange={(event) => onChange(event.target.value)} />
     </span>
   );
@@ -69,7 +70,7 @@ export function MonthInput({ value, onChange, required, min, max, "aria-label": 
   return (
     <span className="calendar-display-control">
       <span className={`calendar-display-value${value ? "" : " placeholder"}`}>{formatMonthDisplay(value)}</span>
-      <button className="calendar-picker-button" type="button" aria-label={ariaLabel ?? "Abrir calendário de mês"} onClick={openPicker}>▣</button>
+      <button className="calendar-picker-button" type="button" aria-label={ariaLabel ?? "Abrir calendário de mês"} onClick={openPicker}><GameIcon variant="calendar" /></button>
       <input ref={inputRef} className="calendar-native-input" type="month" lang="pt-BR" tabIndex={-1} required={required} min={min} max={max} value={value} aria-hidden="true" onChange={(event) => onChange(event.target.value)} />
     </span>
   );
