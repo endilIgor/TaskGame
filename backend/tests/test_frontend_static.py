@@ -508,6 +508,8 @@ def test_onboarding_class_cards_show_selection_state_and_traits():
 def test_onboarding_layout_is_responsive_across_breakpoints():
     css = (FRONTEND / "styles" / "app.css").read_text()
 
+    assert ".onboarding-page { width: min(100%, 1160px); max-width: 1160px; margin: 0 auto; }" in css
+    assert ".onboarding-page .view-hero { justify-items: center; text-align: center; }" in css
     assert ".onboarding-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 0.9fr)" in css
     onboarding_media = css[css.index("@media (max-width: 1180px)"):]
     assert ".filters-panel, .mission-board, .dashboard-grid, .journal-layout, .onboarding-layout { grid-template-columns: 1fr; }" in onboarding_media
