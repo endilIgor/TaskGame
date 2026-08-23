@@ -180,15 +180,23 @@ export function OnboardingView({ onComplete }: OnboardingViewProps) {
 
   function renderHeroPreview() {
     return (
-      <aside className="hero-sprite-card panel" aria-label="Seu herói">
+      <aside
+        className={`hero-sprite-card panel${selectedHeroClass ? ` accent-${selectedHeroClass.accent}` : ""}`}
+        aria-label="Seu herói"
+      >
         <span className="section-kicker">Seu herói</span>
-        {selectedHeroClass ? (
-          <img className="hero-sprite-image" src={selectedHeroClass.sprite} alt={selectedHeroClass.label} />
-        ) : (
-          <div className="hero-sprite-placeholder" aria-hidden="true" />
-        )}
-        <h3>{form.hero_name.trim() || "Sem nome ainda"}</h3>
-        <p>{selectedHeroClass ? selectedHeroClass.label : "Escolha uma classe"}</p>
+        <div className="hero-sprite-frame">
+          {selectedHeroClass ? (
+            <img className="hero-sprite-image" src={selectedHeroClass.sprite} alt={selectedHeroClass.label} />
+          ) : (
+            <div className="hero-sprite-placeholder" aria-hidden="true" />
+          )}
+        </div>
+        <div className="hero-sprite-copy">
+          <h3>{form.hero_name.trim() || "Sem nome ainda"}</h3>
+          <p>{selectedHeroClass ? selectedHeroClass.label : "Escolha uma classe"}</p>
+          {selectedHeroClass ? <span className="hero-sprite-role">{selectedHeroClass.role}</span> : null}
+        </div>
       </aside>
     );
   }
@@ -210,6 +218,7 @@ export function OnboardingView({ onComplete }: OnboardingViewProps) {
               />
             </FormField>
             <h2 className="panel-heading">Escolha sua classe</h2>
+            <p>A classe define o tom das missões e recompensas sugeridas — dá para ajustar depois.</p>
             <div className="class-grid">
               {HERO_CLASSES.map((heroClass) => (
                 <button
@@ -219,9 +228,16 @@ export function OnboardingView({ onComplete }: OnboardingViewProps) {
                   onClick={() => setForm({ ...form, hero_class: heroClass.id })}
                   aria-pressed={form.hero_class === heroClass.id}
                 >
+                  <span className="class-card-check" aria-hidden="true">✓</span>
                   <img className="class-card-sprite" src={heroClass.sprite} alt="" aria-hidden="true" />
+                  <span className="class-card-role">{heroClass.role}</span>
                   <span className="class-card-label">{heroClass.label}</span>
                   <span className="class-card-tagline">{heroClass.tagline}</span>
+                  <span className="class-card-traits">
+                    {heroClass.traits.map((trait) => (
+                      <span key={trait} className="class-card-trait">{trait}</span>
+                    ))}
+                  </span>
                   <span className="class-card-skills">
                     {heroClass.focusSkills.map((skill) => SKILL_OPTIONS.find((option) => option.value === skill)?.label).join(" · ")}
                   </span>

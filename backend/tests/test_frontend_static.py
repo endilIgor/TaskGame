@@ -477,3 +477,69 @@ def test_dashboard_view_shows_hero_profile_card_when_present():
     assert 'apiGetOptional<PlayerProfile>("/profile")' in source
     assert "HeroProfileCard" in source
     assert "hero-profile-card" in source
+
+
+def test_hero_classes_expose_role_and_trait_metadata_for_four_classes():
+    source = (FRONTEND / "src" / "data" / "heroClasses.ts").read_text()
+
+    assert "role: string;" in source
+    assert "traits: string[];" in source
+    for role in [
+        "Tanque de disciplina",
+        "Arquiteto do conhecimento",
+        "Caçador de hábitos",
+        "Guardião do equilíbrio",
+    ]:
+        assert role in source
+
+
+def test_onboarding_class_cards_show_selection_state_and_traits():
+    source = (FRONTEND / "src" / "views" / "OnboardingView.tsx").read_text()
+
+    assert "class-card-check" in source
+    assert "class-card-role" in source
+    assert "class-card-traits" in source
+    assert "heroClass.traits.map" in source
+    assert "hero-sprite-frame" in source
+    assert "hero-sprite-copy" in source
+    assert "hero-sprite-role" in source
+
+
+def test_onboarding_layout_is_responsive_across_breakpoints():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert ".onboarding-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 0.9fr)" in css
+    onboarding_media = css[css.index("@media (max-width: 1180px)"):]
+    assert ".filters-panel, .mission-board, .dashboard-grid, .journal-layout, .onboarding-layout { grid-template-columns: 1fr; }" in onboarding_media
+    assert ".class-grid { grid-template-columns: 1fr; }" in onboarding_media
+    mobile_media = css[css.index("@media (max-width: 720px)"):]
+    assert 'grid-template-areas: "kicker kicker" "sprite copy";' in mobile_media
+    assert ".hero-sprite-frame { grid-area: sprite; width: 76px; height: 92px; }" in mobile_media
+    footer_media = css[css.index("@media (max-width: 560px)"):]
+    assert ".onboarding-footer .row-actions { grid-template-columns: 1fr; justify-content: stretch; width: 100%; }" in footer_media
+    assert ".onboarding-footer .row-actions .button { width: 100%; min-height: 52px; }" in footer_media
+
+
+def test_onboarding_class_cards_have_hover_focus_and_selected_states():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert ".class-card:hover { transform: translateY(-3px); }" in css
+    assert ".class-card:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(85, 179, 255, 0.4); }" in css
+    assert ".class-card.selected .class-card-check { opacity: 1; transform: scale(1); }" in css
+    assert ".choice-pill:focus-visible" in css
+    assert ".suggestion-item:hover" in css
+
+
+def test_onboarding_hero_and_class_sprites_use_css_only_animations_respecting_reduced_motion():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert "@keyframes hero-idle-bob" in css
+    assert "@keyframes hero-glow-pulse" in css
+    assert "@keyframes class-card-enter" in css
+    assert "@keyframes selected-glow-red" in css
+    assert ".hero-sprite-image { position: relative; z-index: 1; width: 140px; height: 170px; object-fit: contain; filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.42)); animation: hero-idle-bob 3.6s ease-in-out infinite; }" in css
+    assert ".class-card-sprite { width: 64px; height: 78px; object-fit: contain; transition: transform 220ms ease; animation: hero-idle-bob 4.2s ease-in-out infinite; }" in css
+    assert "animation: class-card-enter 420ms ease backwards" in css
+
+    reduced_motion_block = css[css.index("@media (prefers-reduced-motion: reduce)"):]
+    assert ".hero-sprite-image, .class-card-sprite, .hero-sprite-frame::before, .class-card { animation: none !important; }" in reduced_motion_block
