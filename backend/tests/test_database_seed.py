@@ -31,6 +31,10 @@ def test_seed_defaults_creates_single_player_and_badges():
         "first_reward",
         "xp_1000",
         "xp_10000",
+        "class_warrior",
+        "class_mage",
+        "class_archer",
+        "class_guardian",
     }
 
 
@@ -62,7 +66,7 @@ def test_seed_defaults_refreshes_existing_default_badge_copy():
 def test_app_startup_initializes_default_sqlite_database():
     with TestClient(create_app()):
         with SessionLocal() as session:
-            assert session.query(Badge).count() == 8
+            assert session.query(Badge).count() == 12
 
 
 def test_mission_completion_schema_migration_adds_unique_key():

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200" role="img" aria-label="Guardião">
+  <ellipse cx="80" cy="184" rx="46" ry="10" fill="#000000" opacity="0.28" />
+  <rect x="32" y="100" width="96" height="76" rx="22" fill="#2f6fb0" />
+  <circle cx="80" cy="64" r="36" fill="#f0b48a" />
+  <path d="M40 60 Q80 14 120 60 L120 40 Q80 4 40 40 Z" fill="#264f80" />
+  <circle cx="66" cy="66" r="4.5" fill="#2a1c14" />
+  <circle cx="94" cy="66" r="4.5" fill="#2a1c14" />
+  <path d="M66 82 Q80 88 94 82" stroke="#8a4a30" stroke-width="4" fill="none" stroke-linecap="round" />
+  <rect x="14" y="106" width="20" height="58" rx="10" fill="#264f80" />
+  <path d="M114 92 L146 104 Q146 148 114 168 Q82 148 82 104 Z" fill="#8ea3c9" stroke="#264f80" stroke-width="4" />
+  <path d="M114 108 L114 152" stroke="#264f80" stroke-width="4" />
+  <path d="M96 128 L132 128" stroke="#264f80" stroke-width="4" />
+  <rect x="60" y="120" width="40" height="10" rx="5" fill="#ffcb5c" />
+</svg>

@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 from backend.app.models import (
     Badge,
     EarnedBadge,
+    HeroClass,
     Mission,
     MissionCompletion,
     MissionStatus,
     MissionType,
+    PlayerProfile,
     PlayerStats,
     RewardPurchase,
 )
@@ -24,7 +26,15 @@ def evaluate_badges(session: Session) -> list[EarnedBadge]:
     current_streak = player.current_streak if player else 0
     total_xp = player.total_xp if player else 0
     weekly_report = build_weekly_report(session)
+    profile = session.scalar(select(PlayerProfile).limit(1))
+    onboarding_completed = profile is not None and profile.onboarding_completed_at is not None
     conditions = {
+        f"class_{hero_class.value}": (
+            onboarding_completed and profile is not None and profile.hero_class == hero_class
+        )
+        for hero_class in HeroClass
+    }
+    conditions.update({
         "streak_7": current_streak >= 7,
         "streak_30": current_streak >= 30,
         "missions_100": session.scalar(select(func.count()).select_from(MissionCompletion)) >= 100,
@@ -42,7 +52,7 @@ def evaluate_badges(session: Session) -> list[EarnedBadge]:
             weekly_report.missions_failed == 0
             and weekly_report.missions_completed >= 7
         ),
-    }
+    })
     badges = list(session.scalars(select(Badge).where(Badge.code.in_(conditions))).all())
     earned_badge_ids = set(
         session.scalars(

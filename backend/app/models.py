@@ -37,6 +37,13 @@ class MissionStatus(StrEnum):
     ARCHIVED = "archived"
 
 
+class HeroClass(StrEnum):
+    WARRIOR = "warrior"
+    MAGE = "mage"
+    ARCHER = "archer"
+    GUARDIAN = "guardian"
+
+
 class RewardStatus(StrEnum):
     ACTIVE = "active"
     ARCHIVED = "archived"
@@ -186,6 +193,31 @@ class WeeklySnapshot(Base):
     gold_gained: Mapped[int] = mapped_column(Integer, default=0)
     best_day: Mapped[str | None] = mapped_column(String(16))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class PlayerProfile(Base):
+    __tablename__ = "player_profile"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    hero_name: Mapped[str] = mapped_column(String(80))
+    hero_class: Mapped[HeroClass] = mapped_column(
+        Enum(HeroClass, values_callable=enum_values),
+    )
+    avatar_asset: Mapped[str | None] = mapped_column(String(180))
+    focus_skills: Mapped[str] = mapped_column(Text)
+    daily_minutes: Mapped[int] = mapped_column(Integer)
+    preferred_days: Mapped[str] = mapped_column(Text)
+    main_goal: Mapped[str | None] = mapped_column(Text)
+    progress_prompt: Mapped[str | None] = mapped_column(Text)
+    reward_style: Mapped[str | None] = mapped_column(String(40))
+    intensity: Mapped[str] = mapped_column(String(20), default="balanced")
+    onboarding_completed_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
 
 
 class JournalEntry(Base):

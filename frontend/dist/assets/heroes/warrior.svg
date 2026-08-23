@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" width="160" height="200" role="img" aria-label="Guerreiro">
+  <ellipse cx="80" cy="184" rx="46" ry="10" fill="#000000" opacity="0.28" />
+  <rect x="34" y="96" width="92" height="80" rx="26" fill="#c23b3b" />
+  <rect x="34" y="96" width="92" height="26" rx="13" fill="#e14f4f" />
+  <circle cx="80" cy="64" r="36" fill="#f0b48a" />
+  <path d="M44 58 Q80 20 116 58 L116 46 Q80 12 44 46 Z" fill="#5a3a24" />
+  <circle cx="66" cy="66" r="4.5" fill="#2a1c14" />
+  <circle cx="94" cy="66" r="4.5" fill="#2a1c14" />
+  <path d="M66 82 Q80 90 94 82" stroke="#8a4a30" stroke-width="4" fill="none" stroke-linecap="round" />
+  <rect x="18" y="104" width="20" height="56" rx="10" fill="#e14f4f" />
+  <rect x="122" y="104" width="20" height="56" rx="10" fill="#e14f4f" />
+  <rect x="10" y="150" width="26" height="10" rx="5" fill="#c9c9c9" />
+  <rect x="118" y="96" width="14" height="70" rx="6" fill="#c9c9c9" transform="rotate(18 125 131)" />
+  <rect x="118" y="86" width="14" height="18" rx="4" fill="#8a8a8a" transform="rotate(18 125 95)" />
+  <polygon points="118,64 138,80 118,110 98,80" fill="#8ea3c9" stroke="#5a6f96" stroke-width="3" />
+  <rect x="60" y="118" width="40" height="10" rx="5" fill="#ffcb5c" />
+</svg>

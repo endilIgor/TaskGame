@@ -20,6 +20,20 @@ export async function apiGet<TResponse>(path: string): Promise<TResponse> {
   return request<TResponse>(path);
 }
 
+export async function apiGetOptional<TResponse>(path: string): Promise<TResponse | null> {
+  const response = await fetch(`/api${path}`, { headers: { "Content-Type": "application/json" } });
+
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || `Request failed with ${response.status}`);
+  }
+
+  return (await response.json()) as TResponse;
+}
+
 export async function apiPost<TResponse, TBody = unknown>(path: string, body?: TBody): Promise<TResponse> {
   return request<TResponse>(path, {
     method: "POST",

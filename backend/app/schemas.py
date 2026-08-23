@@ -4,7 +4,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from backend.app.models import Difficulty, MissionStatus, MissionType, SkillType
+from backend.app.models import Difficulty, HeroClass, MissionStatus, MissionType, SkillType
 
 
 class MissionCreate(BaseModel):
@@ -264,3 +264,102 @@ class WeeklyReportRead(BaseModel):
     daily_activity: list[ReportDayRead]
     top_categories: list[CategoryCompletionRead]
     goals_completed: list[str]
+
+
+class OnboardingAnswers(BaseModel):
+    hero_name: str = Field(min_length=1, max_length=80)
+    hero_class: HeroClass
+    focus_skills: list[SkillType] = Field(min_length=1, max_length=3)
+    daily_minutes: int = Field(ge=5, le=240)
+    preferred_days: list[int] = Field(default_factory=list)
+    main_goal: str | None = Field(default=None, max_length=500)
+    progress_prompt: str | None = Field(default=None, max_length=200)
+    reward_style: str | None = Field(default=None, max_length=40)
+    intensity: str = "balanced"
+
+    @field_validator("preferred_days")
+    @classmethod
+    def validate_preferred_days(cls, value: list[int]) -> list[int]:
+        if any(day < 0 or day > 6 for day in value):
+            raise ValueError("preferred_days values must be between 0 and 6")
+        return value
+
+    @field_validator("intensity")
+    @classmethod
+    def validate_intensity(cls, value: str) -> str:
+        if value not in {"light", "balanced", "hardcore"}:
+            raise ValueError("intensity must be one of light, balanced, hardcore")
+        return value
+
+
+class PlayerProfileRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    hero_name: str
+    hero_class: HeroClass
+    avatar_asset: str | None
+    focus_skills: list[str]
+    daily_minutes: int
+    preferred_days: list[int]
+    main_goal: str | None
+    progress_prompt: str | None
+    reward_style: str | None
+    intensity: str
+    onboarding_completed_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+    @field_validator("focus_skills", mode="before")
+    @classmethod
+    def parse_focus_skills(cls, value: str | list[str]) -> list[str]:
+        if isinstance(value, list):
+            return value
+        return [skill for skill in value.split(",") if skill]
+
+    @field_validator("preferred_days", mode="before")
+    @classmethod
+    def parse_preferred_days(cls, value: str | list[int]) -> list[int]:
+        if isinstance(value, list):
+            return value
+        return [int(day) for day in value.split(",") if day]
+
+
+class MissionSuggestionRead(BaseModel):
+    key: str
+    title: str
+    description: str | None
+    type: MissionType
+    difficulty: Difficulty
+    skill: SkillType
+    target_date: date | None
+    progress_target: int | None
+    repeat_days: list[int] | None
+
+
+class RewardSuggestionRead(BaseModel):
+    key: str
+    name: str
+    description: str | None
+    cost: int
+
+
+class OnboardingPreviewRead(BaseModel):
+    hero_name: str
+    hero_class: HeroClass
+    missions: list[MissionSuggestionRead]
+    rewards: list[RewardSuggestionRead]
+    class_badge: BadgeStatusRead
+
+
+class OnboardingConfirmRequest(BaseModel):
+    answers: OnboardingAnswers
+    selected_mission_keys: list[str] = Field(default_factory=list)
+    selected_reward_keys: list[str] = Field(default_factory=list)
+
+
+class OnboardingConfirmRead(BaseModel):
+    profile: PlayerProfileRead
+    missions: list[MissionRead]
+    rewards: list[RewardRead]
+    badges: list[BadgeStatusRead]

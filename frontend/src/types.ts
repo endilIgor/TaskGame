@@ -3,6 +3,7 @@ export type MissionType = "daily" | "weekly" | "long_term";
 export type Difficulty = "easy" | "medium" | "hard" | "epic";
 export type MissionStatus = "active" | "completed" | "archived";
 export type SkillType = "knowledge" | "strength" | "money" | "health" | "creativity" | "social";
+export type HeroClass = "warrior" | "mage" | "archer" | "guardian";
 
 export interface PlayerSummary {
   total_xp: number;
@@ -187,3 +188,72 @@ export interface JournalEntryCreatePayload {
 }
 
 export type JournalEntryUpdate = Partial<JournalEntryCreatePayload>;
+
+export interface PlayerProfile {
+  id: number;
+  hero_name: string;
+  hero_class: HeroClass;
+  avatar_asset: string | null;
+  focus_skills: SkillType[];
+  daily_minutes: number;
+  preferred_days: number[];
+  main_goal: string | null;
+  progress_prompt: string | null;
+  reward_style: string | null;
+  intensity: string;
+  onboarding_completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OnboardingAnswers {
+  hero_name: string;
+  hero_class: HeroClass;
+  focus_skills: SkillType[];
+  daily_minutes: number;
+  preferred_days: number[];
+  main_goal?: string | null;
+  progress_prompt?: string | null;
+  reward_style?: string | null;
+  intensity: string;
+}
+
+export interface MissionSuggestion {
+  key: string;
+  title: string;
+  description: string | null;
+  type: MissionType;
+  difficulty: Difficulty;
+  skill: SkillType;
+  target_date: string | null;
+  progress_target: number | null;
+  repeat_days: number[] | null;
+}
+
+export interface RewardSuggestion {
+  key: string;
+  name: string;
+  description: string | null;
+  cost: number;
+}
+
+export interface OnboardingPreviewResult {
+  hero_name: string;
+  hero_class: HeroClass;
+  missions: MissionSuggestion[];
+  rewards: RewardSuggestion[];
+  class_badge: BadgeStatus;
+}
+
+export interface OnboardingConfirmPayload {
+  answers: OnboardingAnswers;
+  selected_mission_keys: string[];
+  selected_reward_keys: string[];
+}
+
+export interface OnboardingConfirmResult {
+  profile: PlayerProfile;
+  missions: Mission[];
+  rewards: Reward[];
+  badges: BadgeStatus[];
+}

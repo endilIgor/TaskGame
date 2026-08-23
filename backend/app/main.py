@@ -14,6 +14,7 @@ from backend.app.routers.backup import router as backup_router
 from backend.app.routers.dashboard import router as dashboard_router
 from backend.app.routers.journal import router as journal_router
 from backend.app.routers.missions import router as missions_router
+from backend.app.routers.profile import router as profile_router
 from backend.app.routers.reports import router as reports_router
 from backend.app.routers.rewards import router as rewards_router
 
@@ -66,6 +67,7 @@ def create_app(init_db: bool = True) -> FastAPI:
     app.include_router(dashboard_router)
     app.include_router(reports_router)
     app.include_router(journal_router)
+    app.include_router(profile_router)
     app.mount("/", NoCacheStaticFiles(directory="frontend/dist", html=True), name="frontend")
 
     return app

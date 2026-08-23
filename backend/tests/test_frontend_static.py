@@ -418,3 +418,62 @@ def test_mission_card_is_not_article_inside_article():
 
     assert '<div className={`quest-card${mission.completed_today ? " completed-today" : ""}`}>' in source
     assert '<article className="quest-card">' not in source
+
+
+def test_hero_class_catalog_defines_four_classes_with_portuguese_labels():
+    source = (FRONTEND / "src" / "data" / "heroClasses.ts").read_text()
+
+    for class_id in ["warrior", "mage", "archer", "guardian"]:
+        assert f'id: "{class_id}"' in source
+        assert f"/assets/heroes/{class_id}.svg" in source
+
+    for label in ["Guerreiro", "Mago", "Arqueiro", "Guardião"]:
+        assert label in source
+
+
+def test_hero_sprite_assets_exist_as_project_authored_placeholders():
+    heroes_dir = FRONTEND / "public" / "assets" / "heroes"
+
+    for class_id in ["warrior", "mage", "archer", "guardian"]:
+        sprite = heroes_dir / f"{class_id}.svg"
+        assert sprite.exists()
+        assert "<svg" in sprite.read_text()
+
+    attribution = (heroes_dir / "ATTRIBUTION.md").read_text()
+    assert "project-authored" in attribution
+
+
+def test_onboarding_view_covers_wizard_questions_and_confirm_flow():
+    source = (FRONTEND / "src" / "views" / "OnboardingView.tsx").read_text()
+
+    assert "Escolha sua classe" in source
+    assert "Começar aventura" in source
+    assert 'apiPost<OnboardingPreviewResult, OnboardingAnswers>("/onboarding/preview"' in source
+    assert 'apiPost<OnboardingConfirmResult, OnboardingConfirmPayload>("/onboarding/confirm"' in source
+    assert "HERO_CLASSES.map" in source
+    assert "selectedMissionKeys" in source
+    assert "selectedRewardKeys" in source
+    assert "onComplete()" in source
+
+
+def test_app_shows_onboarding_when_no_profile_exists():
+    source = (FRONTEND / "src" / "App.tsx").read_text()
+
+    assert "OnboardingView" in source
+    assert 'apiGetOptional<PlayerProfile>("/profile")' in source
+    assert '"onboarding"' in source
+
+
+def test_react_api_client_exposes_optional_get_for_404_as_null():
+    source = (FRONTEND / "src" / "api" / "client.ts").read_text()
+
+    assert "export async function apiGetOptional" in source
+    assert "response.status === 404" in source
+
+
+def test_dashboard_view_shows_hero_profile_card_when_present():
+    source = (FRONTEND / "src" / "views" / "DashboardView.tsx").read_text()
+
+    assert 'apiGetOptional<PlayerProfile>("/profile")' in source
+    assert "HeroProfileCard" in source
+    assert "hero-profile-card" in source

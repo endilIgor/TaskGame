@@ -38,3 +38,30 @@ def test_first_goal_badge_unlocks_when_long_term_goal_completes(client: TestClie
     badges = client.get("/api/badges").json()
     earned_codes = {badge["code"] for badge in badges if badge["earned"]}
     assert "first_goal" in earned_codes
+
+
+def test_class_badge_unlocks_for_the_chosen_class_on_onboarding_completion(client: TestClient):
+    answers = {
+        "hero_name": "Rowan",
+        "hero_class": "guardian",
+        "focus_skills": ["health", "social"],
+        "daily_minutes": 15,
+        "preferred_days": [0, 1, 2, 3, 4],
+        "main_goal": "Cuidar mais da rotina em casa",
+        "progress_prompt": "Fazer 1 ação de cuidado por dia",
+        "reward_style": "food",
+        "intensity": "light",
+    }
+
+    response = client.post(
+        "/api/onboarding/confirm",
+        json={"answers": answers, "selected_mission_keys": [], "selected_reward_keys": []},
+    )
+
+    assert response.status_code == 200
+    badges = client.get("/api/badges").json()
+    earned_by_code = {badge["code"]: badge for badge in badges if badge["earned"]}
+    assert "class_guardian" in earned_by_code
+    assert "class_warrior" not in earned_by_code
+    assert "class_mage" not in earned_by_code
+    assert "class_archer" not in earned_by_code

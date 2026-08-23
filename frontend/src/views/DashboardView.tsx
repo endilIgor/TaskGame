@@ -1,14 +1,44 @@
-import { apiGet } from "../api/client";
+import { apiGet, apiGetOptional } from "../api/client";
 import { GameIcon } from "../components/GameIcon";
 import { MetricCard } from "../components/MetricCard";
 import { MissionCard } from "../components/MissionCard";
 import { ProgressBar } from "../components/ProgressBar";
 import { EmptyState, ErrorPanel, LoadingPanel } from "../components/StatePanels";
+import { heroClassById } from "../data/heroClasses";
 import { useAsyncData } from "../hooks/useAsyncData";
-import type { DashboardData } from "../types";
+import type { DashboardData, PlayerProfile } from "../types";
+
+const SKILL_LABELS: Record<string, string> = {
+  knowledge: "Conhecimento",
+  strength: "Força",
+  money: "Dinheiro",
+  health: "Saúde",
+  creativity: "Criatividade",
+  social: "Social",
+};
+
+function HeroProfileCard({ profile }: { profile: PlayerProfile }) {
+  const heroClass = heroClassById(profile.hero_class);
+  return (
+    <section className="panel hero-profile-card" aria-labelledby="hero-profile-heading">
+      <img className="hero-profile-sprite" src={profile.avatar_asset ?? heroClass.sprite} alt={heroClass.label} />
+      <div className="hero-profile-copy">
+        <span className="section-kicker">{heroClass.label}</span>
+        <h2 id="hero-profile-heading">{profile.hero_name}</h2>
+        <p>{heroClass.tagline}</p>
+        <div className="hero-chip-row" aria-label="Foco do herói">
+          {profile.focus_skills.map((skill) => (
+            <span className="hero-chip" key={skill}>{SKILL_LABELS[skill] ?? skill}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function DashboardView() {
   const dashboard = useAsyncData(() => apiGet<DashboardData>("/dashboard"), []);
+  const profile = useAsyncData(() => apiGetOptional<PlayerProfile>("/profile"), []);
 
   if (dashboard.status === "loading") return <LoadingPanel />;
   if (dashboard.status === "error") return <ErrorPanel>{dashboard.error}</ErrorPanel>;
@@ -17,6 +47,7 @@ export function DashboardView() {
 
   return (
     <section className="dashboard guild-main" aria-labelledby="guild-hall-heading">
+      {profile.status === "ready" && profile.data ? <HeroProfileCard profile={profile.data} /> : null}
       <header className="hero-panel">
         <div className="hero-copy">
           <span className="section-kicker">Salão da Guilda</span>

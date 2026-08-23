@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.models import Badge, PlayerStats
+from backend.app.models import Badge, HeroClass, PlayerStats
 
 
 DEFAULT_BADGES = (
@@ -64,6 +64,38 @@ DEFAULT_BADGES = (
 )
 
 
+CLASS_BADGES: dict[HeroClass, dict] = {
+    HeroClass.WARRIOR: {
+        "code": "class_warrior",
+        "name": "Veterano da Arena",
+        "description": "Escolha a classe Guerreiro e conclua o onboarding.",
+        "condition_type": "onboarding_completed",
+        "threshold": 1,
+    },
+    HeroClass.MAGE: {
+        "code": "class_mage",
+        "name": "Mestre do Grimório",
+        "description": "Escolha a classe Mago e conclua o onboarding.",
+        "condition_type": "onboarding_completed",
+        "threshold": 1,
+    },
+    HeroClass.ARCHER: {
+        "code": "class_archer",
+        "name": "Olho Preciso",
+        "description": "Escolha a classe Arqueiro e conclua o onboarding.",
+        "condition_type": "onboarding_completed",
+        "threshold": 1,
+    },
+    HeroClass.GUARDIAN: {
+        "code": "class_guardian",
+        "name": "Escudo da Rotina",
+        "description": "Escolha a classe Guardião e conclua o onboarding.",
+        "condition_type": "onboarding_completed",
+        "threshold": 1,
+    },
+}
+
+
 def seed_defaults(session: Session) -> None:
     if session.scalar(select(PlayerStats).limit(1)) is None:
         session.add(PlayerStats())
@@ -72,7 +104,8 @@ def seed_defaults(session: Session) -> None:
         badge.code: badge
         for badge in session.scalars(select(Badge)).all()
     }
-    for badge_data in DEFAULT_BADGES:
+    all_badges = list(DEFAULT_BADGES) + list(CLASS_BADGES.values())
+    for badge_data in all_badges:
         badge = existing_badges.get(badge_data["code"])
         if badge is None:
             session.add(Badge(**badge_data))
