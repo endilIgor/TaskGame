@@ -545,3 +545,31 @@ def test_onboarding_hero_and_class_sprites_use_css_only_animations_respecting_re
 
     reduced_motion_block = css[css.index("@media (prefers-reduced-motion: reduce)"):]
     assert ".hero-sprite-image, .class-card-sprite, .hero-sprite-frame::before, .class-card { animation: none !important; }" in reduced_motion_block
+
+
+def test_main_app_has_entrance_and_microinteraction_animations():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    for keyframe in ["view-enter", "panel-enter", "card-enter", "bar-grow", "orb-pulse", "progress-sheen", "nav-active-shimmer", "badge-earned-glow"]:
+        assert f"@keyframes {keyframe}" in css
+
+    assert ".view-page { animation: view-enter" in css
+    assert ".hero-panel, .view-hero, .panel { animation: panel-enter" in css
+    assert ".metric-card, .quest-card, .badge-tile, .reward-tile, .journal-post-card, .mission-row, .goal-row {" in css
+    assert "animation: card-enter" in css
+    assert ".metric-orb { animation: orb-pulse" in css
+    assert ".badge-tile.earned { animation: card-enter" in css
+    assert ".progress-bar::after" in css
+    assert ".nav-button.active::after" in css
+    assert ".chart-bar { transform-origin: bottom; animation: bar-grow" in css
+    assert ".button:active:not(:disabled)" in css
+
+    reduced_motion_block = css[css.index("@media (prefers-reduced-motion: reduce)"):]
+    assert ".metric-orb, .progress-bar::after, .nav-button.active::after, .badge-tile.earned { animation: none !important; }" in reduced_motion_block
+
+
+def test_hover_lift_microinteractions_skip_locked_and_active_cards():
+    css = (FRONTEND / "styles" / "app.css").read_text()
+
+    assert ".journal-post-card:hover:not(.active)" in css
+    assert ".badge-tile.locked:hover { transform: none; box-shadow: none; }" in css
