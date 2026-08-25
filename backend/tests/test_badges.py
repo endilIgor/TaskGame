@@ -65,3 +65,39 @@ def test_class_badge_unlocks_for_the_chosen_class_on_onboarding_completion(clien
     assert "class_warrior" not in earned_by_code
     assert "class_mage" not in earned_by_code
     assert "class_archer" not in earned_by_code
+
+
+def test_mission_specific_badges_unlock_from_daily_weekly_and_epic_completions(client: TestClient):
+    for index in range(10):
+        mission = client.post(
+            "/api/missions",
+            json={"title": f"Diaria {index}", "type": "daily", "difficulty": "easy"},
+        ).json()
+        client.post(f"/api/missions/{mission['id']}/complete")
+
+    for index in range(4):
+        mission = client.post(
+            "/api/missions",
+            json={"title": f"Semanal {index}", "type": "weekly", "difficulty": "medium"},
+        ).json()
+        client.post(f"/api/missions/{mission['id']}/complete")
+
+    for index in range(3):
+        mission = client.post(
+            "/api/missions",
+            json={
+                "title": f"Campanha {index}",
+                "type": "long_term",
+                "difficulty": "epic",
+                "progress_target": 1,
+                "target_date": campaign_target_date(),
+            },
+        ).json()
+        client.post(f"/api/missions/{mission['id']}/progress", json={"amount": 1})
+
+    badges = client.get("/api/badges").json()
+    earned_codes = {badge["code"] for badge in badges if badge["earned"]}
+
+    assert "daily_contracts_10" in earned_codes
+    assert "weekly_contracts_4" in earned_codes
+    assert "epic_campaigns_3" in earned_codes

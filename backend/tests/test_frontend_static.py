@@ -354,6 +354,9 @@ def test_badge_tiles_show_condition_and_unlock_date():
     assert "earned_at" in source
     assert "Conquistada em" in source
     assert "Ainda bloqueada" in source
+    assert "badgeTheme" in source
+    assert "Medalha do personagem" in source
+    assert "Medalha de missão" in source
 
 
 def test_reports_use_non_punitive_failure_copy():
@@ -477,6 +480,8 @@ def test_dashboard_view_shows_hero_profile_card_when_present():
     assert 'apiGetOptional<PlayerProfile>("/profile")' in source
     assert "HeroProfileCard" in source
     assert "hero-profile-card" in source
+    assert "hero-profile-avatar" in source
+    assert "hero-profile-rune" in source
 
 
 def test_hero_classes_expose_role_and_trait_metadata_for_four_classes():
@@ -559,12 +564,18 @@ def test_main_app_has_entrance_and_microinteraction_animations():
     assert "animation: card-enter" in css
     assert ".metric-orb { animation: orb-pulse" in css
     assert ".badge-tile.earned { animation: card-enter" in css
+    assert "@keyframes hall-hero-ready" in css
+    assert ".hero-profile-sprite" in css and "animation: hall-hero-ready" in css
+    assert ".hero-profile-rune" in css and "animation: hall-rune-orbit" in css
+    assert ".badge-theme-missions" in css
+    assert ".badge-theme-hero-warrior" in css
     assert ".progress-bar::after" in css
     assert ".nav-button.active::after" in css
     assert ".chart-bar { transform-origin: bottom; animation: bar-grow" in css
     assert ".button:active:not(:disabled)" in css
 
     reduced_motion_block = css[css.index("@media (prefers-reduced-motion: reduce)"):]
+    assert ".hero-profile-sprite, .hero-profile-avatar::before, .hero-profile-rune" in reduced_motion_block
     assert ".metric-orb, .progress-bar::after, .nav-button.active::after, .badge-tile.earned { animation: none !important; }" in reduced_motion_block
 
 

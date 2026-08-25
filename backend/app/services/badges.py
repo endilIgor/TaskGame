@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.models import (
     Badge,
+    Difficulty,
     EarnedBadge,
     HeroClass,
     Mission,
@@ -19,6 +20,20 @@ from backend.app.services.reports import build_weekly_report
 
 def _has_rows(session: Session, statement: Select[tuple[int]]) -> bool:
     return session.scalar(statement.limit(1)) is not None
+
+
+def _mission_completion_count(
+    session: Session,
+    *,
+    mission_type: MissionType | None = None,
+    difficulty: Difficulty | None = None,
+) -> int:
+    statement = select(func.count()).select_from(MissionCompletion).join(Mission)
+    if mission_type is not None:
+        statement = statement.where(Mission.type == mission_type)
+    if difficulty is not None:
+        statement = statement.where(Mission.difficulty == difficulty)
+    return session.scalar(statement) or 0
 
 
 def evaluate_badges(session: Session) -> list[EarnedBadge]:
@@ -38,6 +53,9 @@ def evaluate_badges(session: Session) -> list[EarnedBadge]:
         "streak_7": current_streak >= 7,
         "streak_30": current_streak >= 30,
         "missions_100": session.scalar(select(func.count()).select_from(MissionCompletion)) >= 100,
+        "daily_contracts_10": _mission_completion_count(session, mission_type=MissionType.DAILY) >= 10,
+        "weekly_contracts_4": _mission_completion_count(session, mission_type=MissionType.WEEKLY) >= 4,
+        "epic_campaigns_3": _mission_completion_count(session, difficulty=Difficulty.EPIC) >= 3,
         "first_goal": _has_rows(
             session,
             select(Mission.id).where(

@@ -26,6 +26,9 @@ def test_seed_defaults_creates_single_player_and_badges():
         "streak_7",
         "streak_30",
         "missions_100",
+        "daily_contracts_10",
+        "weekly_contracts_4",
+        "epic_campaigns_3",
         "first_goal",
         "perfect_week",
         "first_reward",
@@ -66,7 +69,7 @@ def test_seed_defaults_refreshes_existing_default_badge_copy():
 def test_app_startup_initializes_default_sqlite_database():
     with TestClient(create_app()):
         with SessionLocal() as session:
-            assert session.query(Badge).count() == 12
+            assert session.query(Badge).count() == 15
 
 
 def test_mission_completion_schema_migration_adds_unique_key():

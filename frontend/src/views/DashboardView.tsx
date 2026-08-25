@@ -20,8 +20,12 @@ const SKILL_LABELS: Record<string, string> = {
 function HeroProfileCard({ profile }: { profile: PlayerProfile }) {
   const heroClass = heroClassById(profile.hero_class);
   return (
-    <section className="panel hero-profile-card" aria-labelledby="hero-profile-heading">
-      <img className="hero-profile-sprite" src={profile.avatar_asset ?? heroClass.sprite} alt={heroClass.label} />
+    <section className={`panel hero-profile-card accent-${heroClass.accent}`} aria-labelledby="hero-profile-heading">
+      <div className="hero-profile-avatar" aria-hidden="true">
+        <span className="hero-profile-rune rune-one" />
+        <span className="hero-profile-rune rune-two" />
+        <img className="hero-profile-sprite" src={profile.avatar_asset ?? heroClass.sprite} alt="" />
+      </div>
       <div className="hero-profile-copy">
         <span className="section-kicker">{heroClass.label}</span>
         <h2 id="hero-profile-heading">{profile.hero_name}</h2>
