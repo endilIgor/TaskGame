@@ -340,6 +340,16 @@ def test_rewards_view_surfaces_purchase_history_failures_without_an_import_alias
     assert "RewardPurchase as" not in source
 
 
+def test_rewards_view_shows_mission_and_badge_based_purchase_suggestions():
+    source = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
+
+    assert 'apiGet<RewardSuggestion[]>("/rewards/suggestions")' in source
+    assert "Sugestões por missões e medalhas" in source
+    assert "createSuggestedReward" in source
+    assert "suggestion.source_label" in source
+    assert "Adicionar à loja" in source
+
+
 def test_reward_purchase_requires_confirmation():
     source = (FRONTEND / "src" / "views" / "RewardsView.tsx").read_text()
 

@@ -1,4 +1,7 @@
 from fastapi.testclient import TestClient
+from sqlalchemy.dialects import mysql
+
+from backend.app.services.rewards import build_badge_suggestion_statement
 
 
 def earn_gold(client: TestClient, times: int = 1) -> None:
@@ -47,3 +50,32 @@ def test_reward_purchase_history_is_listed_newest_first(client: TestClient):
 
     assert response.status_code == 200
     assert response.json() == [purchased]
+
+
+def test_shop_suggestions_are_based_on_current_missions_and_badges(client: TestClient):
+    mission = client.post(
+        "/api/missions",
+        json={"title": "Estudar para prova", "type": "daily", "difficulty": "medium"},
+    ).json()
+    client.post(f"/api/missions/{mission['id']}/complete")
+
+    response = client.get("/api/rewards/suggestions")
+
+    assert response.status_code == 200
+    suggestions = response.json()
+    assert any(
+        suggestion["source"] == "mission" and "Estudar para prova" in suggestion["description"]
+        for suggestion in suggestions
+    )
+    assert any(
+        suggestion["source"] == "badge" and "Primeira compra na loja" in suggestion["name"]
+        for suggestion in suggestions
+    )
+    assert all(suggestion["cost"] >= 1 for suggestion in suggestions)
+
+
+def test_shop_suggestion_badge_query_compiles_for_mysql_without_nulls_last():
+    compiled = str(build_badge_suggestion_statement().compile(dialect=mysql.dialect()))
+
+    assert "NULLS LAST" not in compiled
+    assert "CASE WHEN" in compiled

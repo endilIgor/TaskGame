@@ -342,6 +342,8 @@ class RewardSuggestionRead(BaseModel):
     name: str
     description: str | None
     cost: int
+    source: str = "onboarding"
+    source_label: str = "Onboarding"
 
 
 class OnboardingPreviewRead(BaseModel):

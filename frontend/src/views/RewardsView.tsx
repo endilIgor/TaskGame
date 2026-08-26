@@ -5,7 +5,7 @@ import { GameIcon } from "../components/GameIcon";
 import { RewardCard } from "../components/RewardCard";
 import { EmptyState, ErrorPanel, LoadingPanel } from "../components/StatePanels";
 import { useAsyncData } from "../hooks/useAsyncData";
-import type { Reward, RewardCreatePayload, RewardPurchase } from "../types";
+import type { Reward, RewardCreatePayload, RewardPurchase, RewardSuggestion } from "../types";
 
 export function RewardsView() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -13,9 +13,10 @@ export function RewardsView() {
   const [description, setDescription] = useState("");
   const [cost, setCost] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<number | "create" | null>(null);
+  const [busy, setBusy] = useState<number | "create" | `suggestion:${string}` | null>(null);
   const rewards = useAsyncData(() => apiGet<Reward[]>("/rewards"), [refreshKey]);
   const purchases = useAsyncData(() => apiGet<RewardPurchase[]>("/rewards/purchases"), [refreshKey]);
+  const suggestions = useAsyncData(() => apiGet<RewardSuggestion[]>("/rewards/suggestions"), [refreshKey]);
 
   async function create(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,6 +53,23 @@ export function RewardsView() {
     }
   }
 
+  async function createSuggestedReward(suggestion: RewardSuggestion) {
+    setBusy(`suggestion:${suggestion.key}`);
+    setError(null);
+    try {
+      await apiPost<Reward, RewardCreatePayload>("/rewards", {
+        name: suggestion.name,
+        description: suggestion.description,
+        cost: suggestion.cost,
+      });
+      setRefreshKey((key) => key + 1);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Não foi possível adicionar a sugestão à loja.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <section className="view-page" aria-labelledby="rewards-heading">
       <header><span className="section-kicker">Ouro</span><h1 className="page-heading" id="rewards-heading">Loja</h1></header>
@@ -71,6 +89,31 @@ export function RewardsView() {
         <div className="composer-footer"><span>Use a loja para trocar ouro por recompensas reais.</span><button className="button primary" disabled={busy === "create"}>Adicionar recompensa</button></div>
       </form>
       {error ? <ErrorPanel>{error}</ErrorPanel> : null}
+      {suggestions.status === "error" ? <ErrorPanel>{suggestions.error}</ErrorPanel> : null}
+      {suggestions.status === "ready" && suggestions.data.length ? (
+        <section className="panel">
+          <div className="section-heading">
+            <div>
+              <span className="section-kicker">Compras inteligentes</span>
+              <h2 className="panel-heading">Sugestões por missões e medalhas</h2>
+            </div>
+            <span className="section-count"><GameIcon variant="medal" /></span>
+          </div>
+          <div className="reward-grid">
+            {suggestions.data.map((suggestion) => (
+              <article className="reward-tile" key={suggestion.key}>
+                <span className="section-kicker">{suggestion.source_label}</span>
+                <h2 className="reward-name">{suggestion.name}</h2>
+                <p className="quest-description">{suggestion.description}</p>
+                <div className="reward-footer">
+                  <strong className="reward-cost">{suggestion.cost} ouro</strong>
+                  <button className="button secondary" type="button" onClick={() => createSuggestedReward(suggestion)} disabled={busy === `suggestion:${suggestion.key}`}>Adicionar à loja</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
       {rewards.status === "loading" ? <LoadingPanel /> : null}
       {rewards.status === "error" ? <ErrorPanel>{rewards.error}</ErrorPanel> : null}
       {rewards.status === "ready" ? rewards.data.length ? (

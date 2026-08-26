@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.app.database import get_session
-from backend.app.schemas import RewardCreate, RewardPurchaseRead, RewardRead, RewardUpdate
+from backend.app.schemas import RewardCreate, RewardPurchaseRead, RewardRead, RewardSuggestionRead, RewardUpdate
 from backend.app.services import rewards as reward_service
 
 
@@ -26,6 +26,11 @@ def list_rewards(
 @router.get("/purchases", response_model=list[RewardPurchaseRead])
 def list_reward_purchases(session: Session = Depends(get_session)):
     return reward_service.list_purchases(session)
+
+
+@router.get("/suggestions", response_model=list[RewardSuggestionRead])
+def list_reward_suggestions(session: Session = Depends(get_session)):
+    return reward_service.list_reward_suggestions(session)
 
 
 @router.post("", response_model=RewardRead, status_code=status.HTTP_201_CREATED)

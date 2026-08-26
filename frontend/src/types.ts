@@ -235,6 +235,8 @@ export interface RewardSuggestion {
   name: string;
   description: string | null;
   cost: number;
+  source: string;
+  source_label: string;
 }
 
 export interface OnboardingPreviewResult {
